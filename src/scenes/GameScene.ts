@@ -1,4 +1,4 @@
-import { GameObjects, Tilemaps } from "phaser";
+import { GameObjects } from "phaser";
 import { MoveableEntity } from "../classes/MoveableEntity";
 import { EntityType, Grid } from "../classes/Grid";
 import { TILE_WIDTH } from "../config";
@@ -15,7 +15,7 @@ export enum Command {
 
 interface QueuedCommand {
     command: Command;
-    queuedAt: number;
+    executeAfter: number;
 }
 
 const PING_MULTIPLIER = 1000;
@@ -167,8 +167,8 @@ export class GameScene extends Phaser.Scene {
 
     private setQueuedInputTimes(time: number) {
         this.queuedCommands
-            .filter((q) => q.queuedAt === 0)
-            .forEach((q) => (q.queuedAt = time));
+            .filter((q) => q.executeAfter === 0)
+            .forEach((q) => (q.executeAfter = time + this.currentPingValue));
     }
 
     private doTick(time: number) {
@@ -179,7 +179,7 @@ export class GameScene extends Phaser.Scene {
         while (this.queuedCommands.length) {
             const currentItem = this.queuedCommands[0];
             // if the first item on the queue isn't mature, nothing is
-            if (currentItem.queuedAt > time) {
+            if (currentItem.executeAfter > time) {
                 break;
             }
 
@@ -220,10 +220,12 @@ export class GameScene extends Phaser.Scene {
         // TODO accept input from buttons clicks / network only!
         const listener = (command: Command) => {
             const q = this.queuedCommands;
-            return function () {
+            return function (e: Event) {
+                e.preventDefault();
+                e.stopPropagation();
                 q.push({
                     command: command,
-                    queuedAt: 0,
+                    executeAfter: 0,
                 });
             };
         };
@@ -256,7 +258,7 @@ export class GameScene extends Phaser.Scene {
         this.scene.restart({ levelDepth: this.levelDepth + 1 });
     }
 
-    private collideHazard() {}
+    //private collideHazard() {}
 
     private getEntityImage(entity: EntityType) {
         switch (entity) {
