@@ -5,7 +5,6 @@ import { TILE_WIDTH } from "../config";
 import { getRandomInt } from "../utils";
 import { Drone } from "../classes/Drone";
 import { Enemy } from "../classes/Enemy";
-import { GameOverScene } from "./GameOverScene";
 
 interface QueuedCommand {
     command: Command;

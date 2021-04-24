@@ -35,8 +35,8 @@ export class Grid {
 
         // TODO actually generate random portal coords, with a min distance from player
         this.portal = {
-            x: this.width - this.playerStart.x,
-            y: this.height - this.playerStart.y,
+            x: this.width - this.playerStart.x - 1,
+            y: this.height - this.playerStart.y - 1,
         };
 
         const fgColor = getRandomInt(0xffffff);
