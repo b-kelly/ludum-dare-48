@@ -1,9 +1,11 @@
 import { GameObjects } from "phaser";
-import { Entity, Grid } from "../classes/Grid";
+import { MoveableEntity } from "../classes/MoveableEntity";
+import { EntityType, Grid } from "../classes/Grid";
 import { TILE_WIDTH } from "../config";
 import { getRandomInt } from "../utils";
+import { Drone } from "../classes/Drone";
 
-enum Command {
+export enum Command {
     Halt,
     Left,
     Right,
@@ -25,7 +27,7 @@ export class GameScene extends Phaser.Scene {
     private readyCommands: Command[] = [];
     /** Commands that were queued by the player, but not ready yet (due to ping) */
     private queuedCommands: QueuedCommand[] = [];
-    private drone: Phaser.GameObjects.Image;
+    private drone: Drone;
     private map: Grid;
     private currentPingValue = 0;
     private levelDepth = 0;
@@ -79,7 +81,7 @@ export class GameScene extends Phaser.Scene {
                 this.physics.add.existing(img);
                 (img.body as Phaser.Physics.Arcade.Body).setImmovable(true);
 
-                if (contents === Entity.Wall) {
+                if (contents === EntityType.Wall) {
                     walls.push(img);
                 }
             }
@@ -87,10 +89,9 @@ export class GameScene extends Phaser.Scene {
 
         /** ADD DRONE + PORTAL */
 
-        this.drone = this.add.image(0, 0, "drone");
-        this.drone.setOrigin(0, 0);
-        this.physics.add.existing(this.drone);
-        this.moveDroneToCell(this.map.playerStart.x, this.map.playerStart.y);
+        this.drone = new Drone(this);
+        this.add.existing(this.drone);
+        this.drone.moveToCell(this.map.playerStart.x, this.map.playerStart.y);
 
         const portal = this.add.image(
             this.map.portal.x * TILE_WIDTH,
@@ -110,12 +111,6 @@ export class GameScene extends Phaser.Scene {
         this.physics.world.checkCollision.down = true;
         this.physics.world.checkCollision.left = true;
         this.physics.world.checkCollision.right = true;
-
-        (this.drone.body as Phaser.Physics.Arcade.Body)
-            .setCollideWorldBounds(true)
-            .setBounce(0, 0)
-            // HACK: adjust the drone bounds so the corners don't collide with the walls
-            .setSize(TILE_WIDTH - 1, TILE_WIDTH - 1, true);
 
         this.physics.add.overlap(
             this.drone,
@@ -149,6 +144,13 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
+    getCellAtCoords(x: number, y: number): { x: number; y: number } {
+        return {
+            x: Math.floor(x / TILE_WIDTH),
+            y: Math.floor(y / TILE_WIDTH),
+        };
+    }
+
     private setPing() {
         // ping min is (multiplier * depth / 2) + 100
         // ping max is (multiplier * depth) + 100
@@ -165,7 +167,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private doTick(time: number) {
-        this.centerDroneOnCurrentCell();
+        this.drone.centerOnCurrentCell();
         this.setPing();
 
         // move items from the received queue to the ready queue as they mature
@@ -186,44 +188,7 @@ export class GameScene extends Phaser.Scene {
 
         this.updateUi();
 
-        this.updatePlayer(this.lastExecutedCommand);
-    }
-
-    private updatePlayer(command: Command) {
-        const body = this.drone.body as Phaser.Physics.Arcade.Body;
-
-        // update the direction
-        switch (command) {
-            case Command.Up:
-                body.setVelocity(0, -TILE_WIDTH);
-                break;
-            case Command.Down:
-                body.setVelocity(0, TILE_WIDTH);
-                break;
-            case Command.Left:
-                body.setVelocity(-TILE_WIDTH, 0);
-                break;
-            case Command.Right:
-                body.setVelocity(TILE_WIDTH, 0);
-                break;
-            default:
-                body.setVelocity(0, 0);
-        }
-    }
-
-    private moveDroneToCell(x: number, y: number) {
-        const coords = {
-            x: TILE_WIDTH * x,
-            y: TILE_WIDTH * y,
-        };
-
-        this.drone.setPosition(coords.x, coords.y);
-    }
-
-    private centerDroneOnCurrentCell() {
-        const pos = this.drone.getCenter();
-        const cell = this.getCellAtCoords(pos.x, pos.y);
-        this.moveDroneToCell(cell.x, cell.y);
+        this.drone.processCommand(this.lastExecutedCommand);
     }
 
     private updateUi() {
@@ -275,23 +240,16 @@ export class GameScene extends Phaser.Scene {
             .addEventListener("click", listener(Command.Halt));
     }
 
-    private collideWall() {
+    private collideWall(entity: MoveableEntity) {
         this.lastExecutedCommand = Command.Halt;
-        this.updatePlayer(Command.Halt);
+        this.drone.processCommand(Command.Halt);
         // pin the player to the current cell so we don't get stuck
-        this.centerDroneOnCurrentCell();
+        entity.centerOnCurrentCell();
     }
 
-    private getCellAtCoords(x: number, y: number) {
-        return {
-            x: Math.floor(x / TILE_WIDTH),
-            y: Math.floor(y / TILE_WIDTH),
-        };
-    }
-
-    private getEntityImage(entity: Entity) {
+    private getEntityImage(entity: EntityType) {
         switch (entity) {
-            case Entity.Wall:
+            case EntityType.Wall:
                 return "wall";
             default:
                 return "ground";

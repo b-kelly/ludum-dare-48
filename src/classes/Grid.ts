@@ -1,13 +1,13 @@
 import { getRandomInt } from "../utils";
 
-export enum Entity {
+export enum EntityType {
     Ground,
     Wall,
     PlayerStart,
 }
 
 export class Grid {
-    contents: Entity[][] = [];
+    contents: EntityType[][] = [];
     readonly playerStart: { x: number; y: number };
     readonly portal: { x: number; y: number };
     readonly color: { fg: number; bg: number };
@@ -51,12 +51,15 @@ export class Grid {
                 // 10% chance to be a wall
                 const isWall = getRandomInt(100) % 10 === 0;
 
-                this.contents[i][j] = isWall ? Entity.Wall : Entity.Ground;
+                this.contents[i][j] = isWall
+                    ? EntityType.Wall
+                    : EntityType.Ground;
             }
         }
 
         // ensure that both the portal and player squares are ground
-        this.contents[this.playerStart.x][this.playerStart.y] = Entity.Ground;
-        this.contents[this.portal.x][this.portal.y] = Entity.Ground;
+        this.contents[this.playerStart.x][this.playerStart.y] =
+            EntityType.Ground;
+        this.contents[this.portal.x][this.portal.y] = EntityType.Ground;
     }
 }
