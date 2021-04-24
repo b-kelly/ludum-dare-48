@@ -5,6 +5,7 @@ import { Command, MoveableEntity } from "./MoveableEntity";
 
 export class Enemy extends MoveableEntity {
     readonly enemyType: EnemyType;
+    declare scene: GameScene;
 
     constructor(scene: GameScene, enemyType: EnemyType) {
         super(scene, 0, 0, EnemyType[enemyType]);
@@ -20,7 +21,22 @@ export class Enemy extends MoveableEntity {
     }
 
     private processHomeOnPlayer() {
-        //TODO
+        const dronePos = this.scene.drone.currentCell();
+        const pos = this.currentCell();
+
+        let command: Command;
+
+        if (pos.x < dronePos.x) {
+            command = Command.Right;
+        } else if (pos.x > dronePos.x) {
+            command = Command.Left;
+        } else if (pos.y < dronePos.y) {
+            command = Command.Down;
+        } else if (pos.y > dronePos.y) {
+            command = Command.Up;
+        }
+
+        this.processCommand(command);
     }
 
     private processRandomMovement() {

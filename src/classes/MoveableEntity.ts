@@ -28,7 +28,7 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
         this.body
             .setCollideWorldBounds(true)
             .setBounce(0, 0)
-            // HACK: adjust the drone bounds so the corners don't collide with the walls
+            // HACK: adjust the entity bounds so the corners don't collide with the walls
             .setSize(TILE_WIDTH - 1, TILE_WIDTH - 1, true);
     }
 
@@ -42,9 +42,13 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
     }
 
     centerOnCurrentCell(): void {
-        const pos = this.getCenter();
-        const cell = this.scene.getCellAtCoords(pos.x, pos.y);
+        const cell = this.currentCell();
         this.moveToCell(cell.x, cell.y);
+    }
+
+    currentCell(): { x: number; y: number } {
+        const pos = this.getCenter();
+        return this.scene.getCellAtCoords(pos.x, pos.y);
     }
 
     processCommand(command: Command): void {

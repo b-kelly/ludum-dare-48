@@ -5,6 +5,7 @@ import { TILE_WIDTH } from "../config";
 import { getRandomInt } from "../utils";
 import { Drone } from "../classes/Drone";
 import { Enemy } from "../classes/Enemy";
+import { GameOverScene } from "./GameOverScene";
 
 interface QueuedCommand {
     command: Command;
@@ -23,7 +24,7 @@ export class GameScene extends Phaser.Scene {
     /** The command that is currently being executed */
     private lastExecutedCommand: Command;
 
-    private drone: Drone;
+    drone: Drone;
     private enemies: Enemy[] = [];
 
     private map: Grid;
@@ -41,7 +42,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     constructor() {
-        super({ key: "GameScene" });
+        super({ key: "Game" });
     }
 
     init(data: { levelDepth: number }): void {
@@ -135,6 +136,11 @@ export class GameScene extends Phaser.Scene {
             this.drone,
             portal,
             this.collidePortal.bind(this)
+        );
+        this.physics.add.overlap(
+            this.drone,
+            this.enemies,
+            this.collideEnemy.bind(this)
         );
 
         /** CAMERA */
@@ -260,7 +266,9 @@ export class GameScene extends Phaser.Scene {
         this.scene.restart({ levelDepth: this.levelDepth + 1 });
     }
 
-    //private collideHazard() {}
+    private collideEnemy() {
+        this.scene.start("GameOver", { score: this.levelDepth });
+    }
 
     private zoomCameraOnPlayer() {
         this.cameras.main.startFollow(

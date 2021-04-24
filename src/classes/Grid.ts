@@ -71,7 +71,7 @@ export class Grid {
         // slap some enemies onto the map
         // TODO intelligently place these as they can currently overlap with walls and eachother...
         const minorEnemyCount = this.difficulty * 3 || 3;
-        const majorEnemyCount = this.difficulty;
+        const majorEnemyCount = Math.ceil(this.difficulty / 2);
 
         for (let i = 0; i < minorEnemyCount; i++) {
             if (i < majorEnemyCount) {
