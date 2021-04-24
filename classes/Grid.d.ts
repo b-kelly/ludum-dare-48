@@ -1,7 +1,7 @@
 export declare enum TileType {
     Ground = 0,
     Wall = 1,
-    PlayerStart = 2
+    Static = 2
 }
 export declare enum EnemyType {
     MajorEnemy = 0,
