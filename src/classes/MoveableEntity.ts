@@ -29,7 +29,7 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
             .setCollideWorldBounds(true)
             .setBounce(0, 0)
             // HACK: adjust the entity bounds so the corners don't collide with the walls
-            .setSize(TILE_WIDTH - 1, TILE_WIDTH - 1, true);
+            .setSize(TILE_WIDTH - 2, TILE_WIDTH - 2, true);
 
         this.body.onWorldBounds = true;
     }
@@ -55,7 +55,7 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
 
     processCommand(command: Command): void {
         const body = this.body;
-        const velocity = TILE_WIDTH * (TICK_LENGTH_MS / 1000);
+        const velocity = TILE_WIDTH / (TICK_LENGTH_MS / 1000);
 
         // update the direction
         switch (command) {
