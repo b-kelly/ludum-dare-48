@@ -30,6 +30,8 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
             .setBounce(0, 0)
             // HACK: adjust the entity bounds so the corners don't collide with the walls
             .setSize(TILE_WIDTH - 1, TILE_WIDTH - 1, true);
+
+        this.body.onWorldBounds = true;
     }
 
     moveToCell(x: number, y: number): void {

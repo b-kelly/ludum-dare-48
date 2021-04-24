@@ -152,10 +152,11 @@ export class GameScene extends Phaser.Scene {
 
         /** PHYSICS */
 
-        this.physics.world.checkCollision.up = true;
-        this.physics.world.checkCollision.down = true;
-        this.physics.world.checkCollision.left = true;
-        this.physics.world.checkCollision.right = true;
+        this.physics.world.setBoundsCollision();
+        this.physics.world.on(
+            "worldbounds",
+            this.collideWall.bind(this, this.drone)
+        );
 
         this.physics.add.overlap(
             this.drone,
@@ -242,11 +243,12 @@ export class GameScene extends Phaser.Scene {
 
     private updateSignalBlockStatus() {
         this.signalBlockedCount -= 1;
+        const textureIsVisible = this.signalBlockedTexture.visible;
 
-        if (this.signalIsBlocked) {
+        if (this.signalIsBlocked && !textureIsVisible) {
             this.signalBlockedTexture.setVisible(true);
             this.resetCameraZoom();
-        } else {
+        } else if (!this.signalIsBlocked && textureIsVisible) {
             // if the signal isn't blocked, there's nothing to do
             this.signalBlockedCount = 0;
             this.zoomCameraOnPlayer();
