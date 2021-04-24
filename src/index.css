@@ -13,5 +13,10 @@ body {
 .ui-container {
     position: absolute;
     top: 0;
-    right: 0;
+    left: 0;
+    text-align: center;
+}
+
+button {
+    width: 50px;
 }
