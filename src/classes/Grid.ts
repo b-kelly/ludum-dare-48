@@ -3,7 +3,7 @@ import { getRandomInt } from "../utils";
 export enum TileType {
     Ground,
     Wall,
-    PlayerStart,
+    Static,
 }
 
 export enum EnemyType {
@@ -50,6 +50,8 @@ export class Grid {
 
     private generate() {
         // TODO actually smart generate the map
+        const wallPercentChance = 10;
+        const staticPercentChance = 10;
 
         for (let i = 0; i < this.width; i++) {
             for (let j = 0; j < this.height; j++) {
@@ -57,10 +59,23 @@ export class Grid {
                     this.contents[i] = [];
                 }
 
-                // 10% chance to be a wall
-                const isWall = getRandomInt(100) % 10 === 0;
+                const isWall =
+                    getRandomInt(100) % Math.floor(100 / wallPercentChance) ===
+                    0;
+                const isStatic =
+                    getRandomInt(100) %
+                        Math.floor(100 / staticPercentChance) ===
+                    0;
 
-                this.contents[i][j] = isWall ? TileType.Wall : TileType.Ground;
+                let tileType = TileType.Ground;
+
+                if (isWall) {
+                    tileType = TileType.Wall;
+                } else if (isStatic) {
+                    tileType = TileType.Static;
+                }
+
+                this.contents[i][j] = tileType;
             }
         }
 

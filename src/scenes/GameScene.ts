@@ -14,6 +14,8 @@ interface QueuedCommand {
 const PING_MULTIPLIER = 1000;
 // only tick once every n * 1000ms
 const TICK_LENGTH = 1 * 1000;
+// static blocks the signal for n ticks
+const STATIC_SIGNAL_BLOCK_LENGTH = 5;
 
 export class GameScene extends Phaser.Scene {
     /** Commands that are ready to execute */
@@ -30,14 +32,19 @@ export class GameScene extends Phaser.Scene {
 
     private currentPingValue = 0;
     private levelDepth = 0;
+    private signalBlockedCount = 0;
 
     private lastTickAt = 0;
+    private signalBlockedTexture: Phaser.GameObjects.RenderTexture;
 
     private get width() {
         return this.physics.world.bounds.width;
     }
     private get height() {
         return this.physics.world.bounds.height;
+    }
+    private get signalIsBlocked() {
+        return this.signalBlockedCount > 0;
     }
 
     constructor() {
@@ -54,6 +61,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image("portal", "assets/portal_1.png");
         this.load.image(TileType[TileType.Ground], "assets/ground_2.png");
         this.load.image(TileType[TileType.Wall], "assets/ground_1.png");
+        this.load.image(TileType[TileType.Static], "assets/static_1.png");
         this.load.image(EnemyType[EnemyType.MajorEnemy], "assets/enemy_1.png");
         this.load.image(EnemyType[EnemyType.MinorEnemy], "assets/enemy_2.png");
     }
@@ -73,13 +81,14 @@ export class GameScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor(bgColor);
 
         const walls: GameObjects.GameObject[] = [];
+        const statics: GameObjects.GameObject[] = [];
 
         for (let i = 0; i < countX; i++) {
             for (let j = 0; j < countY; j++) {
                 const x = i * TILE_WIDTH;
                 const y = j * TILE_WIDTH;
                 const contents = this.map.contents[i][j];
-                const img = this.add.image(x, y, this.getEntityImage(contents));
+                const img = this.add.image(x, y, TileType[contents]);
                 img.setOrigin(0, 0);
                 img.setTint(fgColor);
                 this.physics.add.existing(img);
@@ -87,6 +96,8 @@ export class GameScene extends Phaser.Scene {
 
                 if (contents === TileType.Wall) {
                     walls.push(img);
+                } else if (contents === TileType.Static) {
+                    statics.push(img);
                 }
             }
         }
@@ -113,11 +124,31 @@ export class GameScene extends Phaser.Scene {
             this.enemies.push(enemy);
         });
 
+        /** SIGNAL BLOCKED OVERLAY */
+        this.signalBlockedTexture = this.add
+            .renderTexture(0, 0, this.width, this.height)
+            .setVisible(false);
+        this.signalBlockedTexture.fill(0x000000).draw(
+            this.make.text(
+                {
+                    x: this.width / 2,
+                    y: this.height / 2,
+                    origin: 0.5,
+                    text: "SIGNAL LOST\nReconnecting...",
+                    style: {
+                        align: "center",
+                    },
+                },
+                false
+            )
+        );
+
         /** INIT INTERNAL PROPERTIES */
 
         this.setPing();
         this.setupInputListeners();
         this.setupDebugUi();
+        this.updateSignalBlockStatus();
 
         /** PHYSICS */
 
@@ -140,6 +171,11 @@ export class GameScene extends Phaser.Scene {
             this.drone,
             this.enemies,
             this.collideEnemy.bind(this)
+        );
+        this.physics.add.overlap(
+            this.drone,
+            statics,
+            this.collideStatic.bind(this)
         );
 
         /** CAMERA */
@@ -197,18 +233,33 @@ export class GameScene extends Phaser.Scene {
             this.lastExecutedCommand = this.readyCommands.shift();
         }
 
+        this.updateSignalBlockStatus();
         this.updateUi();
 
         this.drone.processCommand(this.lastExecutedCommand);
         this.enemies.forEach((e) => e.process());
     }
 
+    private updateSignalBlockStatus() {
+        this.signalBlockedCount -= 1;
+
+        if (this.signalIsBlocked) {
+            this.signalBlockedTexture.setVisible(true);
+            this.resetCameraZoom();
+        } else {
+            // if the signal isn't blocked, there's nothing to do
+            this.signalBlockedCount = 0;
+            this.zoomCameraOnPlayer();
+            this.signalBlockedTexture.setVisible(false);
+        }
+    }
+
     private updateUi() {
         // TODO update external UI
         // TODO cache elements
-        document.querySelector(
-            "#js-ping"
-        ).textContent = `Ping: ${this.currentPingValue}`;
+        document.querySelector("#js-ping").textContent = this.signalIsBlocked
+            ? "SIGNAL LOST"
+            : `Ping: ${this.currentPingValue}`;
         document.querySelector("#js-queued").textContent =
             "Sent: " +
             this.queuedCommands.reduce(
@@ -226,11 +277,13 @@ export class GameScene extends Phaser.Scene {
     private setupInputListeners() {
         // TODO accept input from buttons clicks / network only!
         const listener = (command: Command) => {
-            const q = this.queuedCommands;
-            return function (e: Event) {
+            return (e: Event) => {
                 e.preventDefault();
                 e.stopPropagation();
-                q.push({
+                if (this.signalIsBlocked) {
+                    return;
+                }
+                this.queuedCommands.push({
                     command: command,
                     executeAfter: 0,
                 });
@@ -261,12 +314,28 @@ export class GameScene extends Phaser.Scene {
         entity.centerOnCurrentCell();
     }
 
+    private collideStatic() {
+        this.signalBlockedCount = STATIC_SIGNAL_BLOCK_LENGTH;
+
+        // if the drone is stuck in the static, game over
+        if (this.lastExecutedCommand === Command.Halt) {
+            this.transitionToGameOver("Missing in action");
+        }
+    }
+
     private collidePortal() {
         this.scene.restart({ levelDepth: this.levelDepth + 1 });
     }
 
     private collideEnemy() {
-        this.scene.start("GameOver", { score: this.levelDepth });
+        this.transitionToGameOver("Destroyed by hostile life");
+    }
+
+    private transitionToGameOver(reason: string) {
+        this.scene.start("GameOver", {
+            reason: reason,
+            score: this.levelDepth + 1,
+        });
     }
 
     private zoomCameraOnPlayer() {
@@ -281,6 +350,12 @@ export class GameScene extends Phaser.Scene {
         this.cameras.main.setZoom(this.width / TILE_WIDTH / 10);
     }
 
+    private resetCameraZoom() {
+        this.cameras.main.setZoom(1, 1);
+        this.cameras.main.stopFollow();
+        this.cameras.main.setScroll(0, 0);
+    }
+
     private debugMode = false;
     private setupDebugUi() {
         document
@@ -291,21 +366,10 @@ export class GameScene extends Phaser.Scene {
                 this.debugMode = !this.debugMode;
 
                 if (this.debugMode) {
-                    this.cameras.main.setZoom(1, 1);
-                    this.cameras.main.stopFollow();
-                    this.cameras.main.setScroll(0, 0);
+                    this.resetCameraZoom();
                 } else {
                     this.zoomCameraOnPlayer();
                 }
             });
-    }
-
-    private getEntityImage(entity: TileType) {
-        switch (entity) {
-            case TileType.Wall:
-                return TileType[TileType.Wall];
-            default:
-                return TileType[TileType.Ground];
-        }
     }
 }
