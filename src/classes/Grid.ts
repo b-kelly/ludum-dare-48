@@ -9,6 +9,7 @@ export enum Entity {
 export class Grid {
     contents: Entity[][] = [];
     readonly playerStart: { x: number; y: number };
+    readonly portal: { x: number; y: number };
     readonly color: { fg: number; bg: number };
 
     private height: number;
@@ -21,6 +22,12 @@ export class Grid {
         this.playerStart = {
             x: getRandomInt(this.width),
             y: getRandomInt(this.height),
+        };
+
+        // TODO actually generate random portal coords, with a min distance from player
+        this.portal = {
+            x: this.width - this.playerStart.x,
+            y: this.height - this.playerStart.y,
         };
 
         const fgColor = getRandomInt(0xffffff);
@@ -47,5 +54,9 @@ export class Grid {
                 this.contents[i][j] = isWall ? Entity.Wall : Entity.Ground;
             }
         }
+
+        // ensure that both the portal and player squares are ground
+        this.contents[this.playerStart.x][this.playerStart.y] = Entity.Ground;
+        this.contents[this.portal.x][this.portal.y] = Entity.Ground;
     }
 }
