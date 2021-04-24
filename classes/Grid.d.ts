@@ -1,10 +1,10 @@
-export declare enum Entity {
+export declare enum EntityType {
     Ground = 0,
     Wall = 1,
     PlayerStart = 2
 }
 export declare class Grid {
-    contents: Entity[][];
+    contents: EntityType[][];
     readonly playerStart: {
         x: number;
         y: number;
