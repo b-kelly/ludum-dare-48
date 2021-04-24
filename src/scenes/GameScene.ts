@@ -17,14 +17,14 @@ const STATIC_SIGNAL_BLOCK_LENGTH = 5;
 
 export class GameScene extends Phaser.Scene {
     /** Commands that are ready to execute */
-    private readyCommands: Command[] = [];
+    private readyCommands: Command[];
     /** Commands that were queued by the player, but not ready yet (due to ping) */
-    private queuedCommands: QueuedCommand[] = [];
+    private queuedCommands: QueuedCommand[];
     /** The command that is currently being executed */
     private lastExecutedCommand: Command;
 
     drone: Drone;
-    private enemies: Enemy[] = [];
+    private enemies: Enemy[];
 
     private map: Grid;
 
@@ -65,6 +65,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
+        this.readyCommands = [];
+        this.queuedCommands = [];
+
         //TODO
         const countX = this.width / TILE_WIDTH;
         const countY = this.height / TILE_WIDTH;
@@ -115,6 +118,7 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.existing(portal);
 
         /** ADD ENEMIES */
+        this.enemies = [];
         this.map.enemies.forEach((e) => {
             const enemy = new Enemy(this, e.type);
             this.add.existing(enemy);
@@ -323,7 +327,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private collidePortal() {
-        this.scene.restart({ levelDepth: this.levelDepth + 1 });
+        this.scene.start("Game", { levelDepth: this.levelDepth + 1 });
     }
 
     private collideEnemy() {

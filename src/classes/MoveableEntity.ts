@@ -50,7 +50,7 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
 
     currentCell(): { x: number; y: number } {
         const pos = this.getCenter();
-        return this.scene.getCellAtCoords(pos.x, pos.y);
+        return this.scene?.getCellAtCoords(pos.x, pos.y) || { x: 0, y: 0 };
     }
 
     processCommand(command: Command): void {
