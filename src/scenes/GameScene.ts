@@ -1,7 +1,7 @@
 import { GameObjects } from "phaser";
 import { Command, MoveableEntity } from "../classes/MoveableEntity";
 import { TileType, Grid, EnemyType } from "../classes/Grid";
-import { TILE_WIDTH } from "../config";
+import { TICK_LENGTH_MS, TILE_WIDTH } from "../config";
 import { getRandomInt } from "../utils";
 import { Drone } from "../classes/Drone";
 import { Enemy } from "../classes/Enemy";
@@ -12,8 +12,6 @@ interface QueuedCommand {
 }
 
 const PING_MULTIPLIER = 1000;
-// only tick once every n * 1000ms
-const TICK_LENGTH = 1 * 1000;
 // static blocks the signal for n ticks
 const STATIC_SIGNAL_BLOCK_LENGTH = 5;
 
@@ -186,7 +184,7 @@ export class GameScene extends Phaser.Scene {
     update(time: number): void {
         this.setQueuedInputTimes(time);
         const tickDelta = time - this.lastTickAt;
-        if (tickDelta >= TICK_LENGTH) {
+        if (tickDelta >= TICK_LENGTH_MS) {
             this.lastTickAt = time;
             this.doTick(time);
         }

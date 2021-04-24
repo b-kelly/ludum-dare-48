@@ -1,4 +1,4 @@
-import { TILE_WIDTH } from "../config";
+import { TICK_LENGTH_MS, TILE_WIDTH } from "../config";
 import type { GameScene } from "../scenes/GameScene";
 
 export enum Command {
@@ -55,20 +55,21 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
 
     processCommand(command: Command): void {
         const body = this.body;
+        const velocity = TILE_WIDTH * (TICK_LENGTH_MS / 1000);
 
         // update the direction
         switch (command) {
             case Command.Up:
-                body.setVelocity(0, -TILE_WIDTH);
+                body.setVelocity(0, -velocity);
                 break;
             case Command.Down:
-                body.setVelocity(0, TILE_WIDTH);
+                body.setVelocity(0, velocity);
                 break;
             case Command.Left:
-                body.setVelocity(-TILE_WIDTH, 0);
+                body.setVelocity(-velocity, 0);
                 break;
             case Command.Right:
-                body.setVelocity(TILE_WIDTH, 0);
+                body.setVelocity(velocity, 0);
                 break;
             default:
                 body.setVelocity(0, 0);
