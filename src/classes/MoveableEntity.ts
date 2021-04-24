@@ -1,5 +1,13 @@
 import { TILE_WIDTH } from "../config";
-import { Command, GameScene } from "../scenes/GameScene";
+import type { GameScene } from "../scenes/GameScene";
+
+export enum Command {
+    Halt,
+    Left,
+    Right,
+    Up,
+    Down,
+}
 
 export abstract class MoveableEntity extends Phaser.GameObjects.Image {
     declare body: Phaser.Physics.Arcade.Body;

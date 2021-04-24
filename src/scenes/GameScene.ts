@@ -1,17 +1,10 @@
 import { GameObjects } from "phaser";
-import { MoveableEntity } from "../classes/MoveableEntity";
-import { EntityType, Grid } from "../classes/Grid";
+import { Command, MoveableEntity } from "../classes/MoveableEntity";
+import { TileType, Grid, EnemyType } from "../classes/Grid";
 import { TILE_WIDTH } from "../config";
 import { getRandomInt } from "../utils";
 import { Drone } from "../classes/Drone";
-
-export enum Command {
-    Halt,
-    Left,
-    Right,
-    Up,
-    Down,
-}
+import { Enemy } from "../classes/Enemy";
 
 interface QueuedCommand {
     command: Command;
@@ -27,11 +20,16 @@ export class GameScene extends Phaser.Scene {
     private readyCommands: Command[] = [];
     /** Commands that were queued by the player, but not ready yet (due to ping) */
     private queuedCommands: QueuedCommand[] = [];
+    /** The command that is currently being executed */
+    private lastExecutedCommand: Command;
+
     private drone: Drone;
+    private enemies: Enemy[] = [];
+
     private map: Grid;
+
     private currentPingValue = 0;
     private levelDepth = 0;
-    private lastExecutedCommand: Command;
 
     private lastTickAt = 0;
 
@@ -53,9 +51,11 @@ export class GameScene extends Phaser.Scene {
     preload(): void {
         // TODO sprite sheet!
         this.load.image("drone", "assets/drone_1.png");
-        this.load.image("ground", "assets/ground_2.png");
-        this.load.image("wall", "assets/ground_1.png");
         this.load.image("portal", "assets/portal_1.png");
+        this.load.image(TileType[TileType.Ground], "assets/ground_2.png");
+        this.load.image(TileType[TileType.Wall], "assets/ground_1.png");
+        this.load.image(EnemyType[EnemyType.MajorEnemy], "assets/enemy_1.png");
+        this.load.image(EnemyType[EnemyType.MinorEnemy], "assets/enemy_2.png");
     }
 
     create(): void {
@@ -65,7 +65,7 @@ export class GameScene extends Phaser.Scene {
 
         /** DRAW MAP */
 
-        this.map = new Grid(countX, countY);
+        this.map = new Grid(countX, countY, this.levelDepth);
 
         const bgColor = this.map.color.bg;
         const fgColor = this.map.color.fg;
@@ -85,7 +85,7 @@ export class GameScene extends Phaser.Scene {
                 this.physics.add.existing(img);
                 (img.body as Phaser.Physics.Arcade.Body).setImmovable(true);
 
-                if (contents === EntityType.Wall) {
+                if (contents === TileType.Wall) {
                     walls.push(img);
                 }
             }
@@ -105,10 +105,19 @@ export class GameScene extends Phaser.Scene {
         portal.setOrigin(0, 0);
         this.physics.add.existing(portal);
 
+        /** ADD ENEMIES */
+        this.map.enemies.forEach((e) => {
+            const enemy = new Enemy(this, e.type);
+            this.add.existing(enemy);
+            enemy.moveToCell(e.x, e.y);
+            this.enemies.push(enemy);
+        });
+
         /** INIT INTERNAL PROPERTIES */
 
         this.setPing();
         this.setupInputListeners();
+        this.setupDebugUi();
 
         /** PHYSICS */
 
@@ -129,15 +138,7 @@ export class GameScene extends Phaser.Scene {
         );
 
         /** CAMERA */
-        this.cameras.main.startFollow(
-            this.drone,
-            false,
-            1,
-            1,
-            TILE_WIDTH / 2,
-            TILE_WIDTH / 2
-        );
-        this.cameras.main.setZoom(this.width / TILE_WIDTH / 10);
+        this.zoomCameraOnPlayer();
     }
 
     update(time: number): void {
@@ -194,6 +195,7 @@ export class GameScene extends Phaser.Scene {
         this.updateUi();
 
         this.drone.processCommand(this.lastExecutedCommand);
+        this.enemies.forEach((e) => e.process());
     }
 
     private updateUi() {
@@ -260,12 +262,43 @@ export class GameScene extends Phaser.Scene {
 
     //private collideHazard() {}
 
-    private getEntityImage(entity: EntityType) {
+    private zoomCameraOnPlayer() {
+        this.cameras.main.startFollow(
+            this.drone,
+            false,
+            1,
+            1,
+            TILE_WIDTH / 2,
+            TILE_WIDTH / 2
+        );
+        this.cameras.main.setZoom(this.width / TILE_WIDTH / 10);
+    }
+
+    private debugMode = false;
+    private setupDebugUi() {
+        document
+            .querySelector("#js-debugmode")
+            .addEventListener("click", (e) => {
+                e.preventDefault();
+
+                this.debugMode = !this.debugMode;
+
+                if (this.debugMode) {
+                    this.cameras.main.setZoom(1, 1);
+                    this.cameras.main.stopFollow();
+                    this.cameras.main.setScroll(0, 0);
+                } else {
+                    this.zoomCameraOnPlayer();
+                }
+            });
+    }
+
+    private getEntityImage(entity: TileType) {
         switch (entity) {
-            case EntityType.Wall:
-                return "wall";
+            case TileType.Wall:
+                return TileType[TileType.Wall];
             default:
-                return "ground";
+                return TileType[TileType.Ground];
         }
     }
 }

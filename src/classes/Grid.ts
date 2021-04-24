@@ -1,23 +1,32 @@
 import { getRandomInt } from "../utils";
 
-export enum EntityType {
+export enum TileType {
     Ground,
     Wall,
     PlayerStart,
 }
 
+export enum EnemyType {
+    MajorEnemy,
+    MinorEnemy,
+}
+
 export class Grid {
-    contents: EntityType[][] = [];
+    contents: TileType[][] = [];
     readonly playerStart: { x: number; y: number };
     readonly portal: { x: number; y: number };
+    readonly enemies: { type: EnemyType; x: number; y: number }[] = [];
+
     readonly color: { fg: number; bg: number };
 
     private height: number;
     private width: number;
+    private difficulty: number;
 
-    constructor(width: number, height: number) {
+    constructor(width: number, height: number, difficulty: number) {
         this.height = height;
         this.width = width;
+        this.difficulty = difficulty;
 
         this.playerStart = {
             x: getRandomInt(this.width),
@@ -51,15 +60,33 @@ export class Grid {
                 // 10% chance to be a wall
                 const isWall = getRandomInt(100) % 10 === 0;
 
-                this.contents[i][j] = isWall
-                    ? EntityType.Wall
-                    : EntityType.Ground;
+                this.contents[i][j] = isWall ? TileType.Wall : TileType.Ground;
             }
         }
 
         // ensure that both the portal and player squares are ground
-        this.contents[this.playerStart.x][this.playerStart.y] =
-            EntityType.Ground;
-        this.contents[this.portal.x][this.portal.y] = EntityType.Ground;
+        this.contents[this.playerStart.x][this.playerStart.y] = TileType.Ground;
+        this.contents[this.portal.x][this.portal.y] = TileType.Ground;
+
+        // slap some enemies onto the map
+        // TODO intelligently place these as they can currently overlap with walls and eachother...
+        const minorEnemyCount = this.difficulty * 3 || 3;
+        const majorEnemyCount = this.difficulty;
+
+        for (let i = 0; i < minorEnemyCount; i++) {
+            if (i < majorEnemyCount) {
+                this.enemies.push({
+                    type: EnemyType.MajorEnemy,
+                    x: getRandomInt(this.width - 1),
+                    y: getRandomInt(this.height - 1),
+                });
+            }
+
+            this.enemies.push({
+                type: EnemyType.MinorEnemy,
+                x: getRandomInt(this.width - 1),
+                y: getRandomInt(this.height - 1),
+            });
+        }
     }
 }
