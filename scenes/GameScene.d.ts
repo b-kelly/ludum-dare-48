@@ -1,20 +1,16 @@
-export declare enum Command {
-    Halt = 0,
-    Left = 1,
-    Right = 2,
-    Up = 3,
-    Down = 4
-}
+import { Drone } from "../classes/Drone";
 export declare class GameScene extends Phaser.Scene {
     /** Commands that are ready to execute */
     private readyCommands;
     /** Commands that were queued by the player, but not ready yet (due to ping) */
     private queuedCommands;
-    private drone;
+    /** The command that is currently being executed */
+    private lastExecutedCommand;
+    drone: Drone;
+    private enemies;
     private map;
     private currentPingValue;
     private levelDepth;
-    private lastExecutedCommand;
     private lastTickAt;
     private get width();
     private get height();
@@ -36,5 +32,9 @@ export declare class GameScene extends Phaser.Scene {
     private setupInputListeners;
     private collideWall;
     private collidePortal;
+    private collideEnemy;
+    private zoomCameraOnPlayer;
+    private debugMode;
+    private setupDebugUi;
     private getEntityImage;
 }
