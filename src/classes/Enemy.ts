@@ -21,6 +21,7 @@ export class Enemy extends MoveableEntity {
     }
 
     private processHomeOnPlayer() {
+        // TODO add pathfinding around walls
         const dronePos = this.scene.drone.currentCell();
         const pos = this.currentCell();
 
@@ -40,6 +41,7 @@ export class Enemy extends MoveableEntity {
     }
 
     private processRandomMovement() {
+        // TODO add wall avoidance
         const commands = Object.keys(Command);
         const index = getRandomInt(commands.length - 1);
         this.processCommand(Command[commands[index] as keyof typeof Command]);
