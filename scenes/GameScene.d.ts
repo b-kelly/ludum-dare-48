@@ -16,10 +16,14 @@ export declare class GameScene extends Phaser.Scene {
     create(): void;
     update(time: number): void;
     private setPing;
+    private setQueuedInputTimes;
     private doTick;
     private updatePlayer;
+    private moveDroneToCell;
+    private centerDroneOnCurrentCell;
     private updateUi;
     private setupInputListeners;
     private collideWall;
+    private getCellAtCoords;
     private getEntityImage;
 }
