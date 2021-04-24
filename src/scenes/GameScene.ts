@@ -57,6 +57,8 @@ export class GameScene extends Phaser.Scene {
         const countX = this.width / TILE_WIDTH;
         const countY = this.height / TILE_WIDTH;
 
+        /** DRAW MAP */
+
         this.map = new Grid(countX, countY);
 
         const bgColor = this.map.color.bg;
@@ -83,13 +85,12 @@ export class GameScene extends Phaser.Scene {
             }
         }
 
-        this.drone = this.add.image(
-            this.map.playerStart.x * TILE_WIDTH,
-            this.map.playerStart.y * TILE_WIDTH,
-            "drone"
-        );
+        /** ADD DRONE + PORTAL */
+
+        this.drone = this.add.image(0, 0, "drone");
         this.drone.setOrigin(0, 0);
         this.physics.add.existing(this.drone);
+        this.moveDroneToCell(this.map.playerStart.x, this.map.playerStart.y);
 
         const portal = this.add.image(
             this.map.portal.x * TILE_WIDTH,
@@ -98,8 +99,12 @@ export class GameScene extends Phaser.Scene {
         );
         portal.setOrigin(0, 0);
 
+        /** INIT INTERNAL PROPERTIES */
+
         this.setPing();
         this.setupInputListeners();
+
+        /** PHYSICS */
 
         this.physics.world.checkCollision.up = true;
         this.physics.world.checkCollision.down = true;
@@ -108,21 +113,35 @@ export class GameScene extends Phaser.Scene {
 
         (this.drone.body as Phaser.Physics.Arcade.Body)
             .setCollideWorldBounds(true)
-            .setBounce(1, 1);
+            .setBounce(0, 0)
+            // HACK: adjust the drone bounds so the corners don't collide with the walls
+            .setSize(TILE_WIDTH - 1, TILE_WIDTH - 1, true);
 
-        this.physics.add.collider(
+        this.physics.add.overlap(
             this.drone,
             walls,
             this.collideWall.bind(this)
         );
-        this.physics.add.collider(
+        this.physics.add.overlap(
             this.drone,
             portal,
             this.collideWall.bind(this)
         );
+
+        /** CAMERA */
+        this.cameras.main.startFollow(
+            this.drone,
+            false,
+            1,
+            1,
+            TILE_WIDTH / 2,
+            TILE_WIDTH / 2
+        );
+        this.cameras.main.setZoom(this.width / TILE_WIDTH / 10);
     }
 
     update(time: number): void {
+        this.setQueuedInputTimes(time);
         const tickDelta = time - this.lastTickAt;
         if (tickDelta >= TICK_LENGTH) {
             this.lastTickAt = time;
@@ -139,83 +158,135 @@ export class GameScene extends Phaser.Scene {
             halfPing + getRandomInt(halfPing) + getRandomInt(100);
     }
 
+    private setQueuedInputTimes(time: number) {
+        this.queuedCommands
+            .filter((q) => q.queuedAt === 0)
+            .forEach((q) => (q.queuedAt = time));
+    }
+
     private doTick(time: number) {
+        this.centerDroneOnCurrentCell();
         this.setPing();
-        this.updateUi();
 
         // move items from the received queue to the ready queue as they mature
-        for (let i = this.queuedCommands.length - 1; i >= 0; i--) {
-            const currentItem = this.queuedCommands[i];
-            if (currentItem.queuedAt <= time) {
-                this.queuedCommands.splice(i, 1);
-                this.readyCommands.push(currentItem.command);
+        while (this.queuedCommands.length) {
+            const currentItem = this.queuedCommands[0];
+            // if the first item on the queue isn't mature, nothing is
+            if (currentItem.queuedAt > time) {
+                break;
             }
+
+            this.readyCommands.push(currentItem.command);
+            this.queuedCommands.shift();
         }
 
         if (this.readyCommands.length) {
             this.lastExecutedCommand = this.readyCommands.shift();
         }
 
+        this.updateUi();
+
         this.updatePlayer(this.lastExecutedCommand);
     }
 
     private updatePlayer(command: Command) {
         const body = this.drone.body as Phaser.Physics.Arcade.Body;
-        body.setVelocity(0, 0);
+
+        // update the direction
         switch (command) {
             case Command.Up:
-                body.setVelocityY(-TILE_WIDTH);
+                body.setVelocity(0, -TILE_WIDTH);
                 break;
             case Command.Down:
-                body.setVelocityY(TILE_WIDTH);
+                body.setVelocity(0, TILE_WIDTH);
                 break;
             case Command.Left:
-                body.setVelocityX(-TILE_WIDTH);
+                body.setVelocity(-TILE_WIDTH, 0);
                 break;
             case Command.Right:
-                body.setVelocityX(TILE_WIDTH);
+                body.setVelocity(TILE_WIDTH, 0);
                 break;
             default:
-                return;
+                body.setVelocity(0, 0);
         }
+    }
+
+    private moveDroneToCell(x: number, y: number) {
+        const coords = {
+            x: TILE_WIDTH * x,
+            y: TILE_WIDTH * y,
+        };
+
+        this.drone.setPosition(coords.x, coords.y);
+    }
+
+    private centerDroneOnCurrentCell() {
+        const pos = this.drone.getCenter();
+        const cell = this.getCellAtCoords(pos.x, pos.y);
+        this.moveDroneToCell(cell.x, cell.y);
     }
 
     private updateUi() {
         // TODO update external UI
-        console.clear();
-        console.table({
-            ping: this.currentPingValue,
-            queue: this.queuedCommands.reduce(
-                (p, n) => `${p},${Command[n.command]}:${n.queuedAt}`,
+        // TODO cache elements
+        document.querySelector(
+            "#js-ping"
+        ).textContent = `Ping: ${this.currentPingValue}`;
+        document.querySelector("#js-queued").textContent =
+            "Sent: " +
+            this.queuedCommands.reduce(
+                (p, n) => `${p},${Command[n.command]}`,
                 ""
-            ),
-            commands: this.readyCommands.reduce((p, n) => `${p},${n}`, ""),
-        });
+            );
+        document.querySelector("#js-ready").textContent =
+            "Received: " +
+            this.readyCommands.reduce((p, n) => `${p},${Command[n]}`, "");
+        document.querySelector("#js-executing").textContent = `Executing: ${
+            Command[this.lastExecutedCommand] || Command[Command.Halt]
+        }`;
     }
 
     private setupInputListeners() {
         // TODO accept input from buttons clicks / network only!
-        const cursorKeys = this.input.keyboard.createCursorKeys();
-
         const listener = (command: Command) => {
             const q = this.queuedCommands;
-            return function (this: Phaser.Input.Keyboard.Key) {
+            return function () {
                 q.push({
                     command: command,
-                    queuedAt: this.timeDown,
+                    queuedAt: 0,
                 });
             };
         };
 
-        cursorKeys.up.on("down", listener(Command.Up));
-        cursorKeys.down.on("down", listener(Command.Down));
-        cursorKeys.left.on("down", listener(Command.Left));
-        cursorKeys.right.on("down", listener(Command.Right));
-        cursorKeys.space.on("down", listener(Command.Halt));
+        document
+            .querySelector("#js-up-btn")
+            .addEventListener("click", listener(Command.Up));
+        document
+            .querySelector("#js-down-btn")
+            .addEventListener("click", listener(Command.Down));
+        document
+            .querySelector("#js-left-btn")
+            .addEventListener("click", listener(Command.Left));
+        document
+            .querySelector("#js-right-btn")
+            .addEventListener("click", listener(Command.Right));
+        document
+            .querySelector("#js-halt-btn")
+            .addEventListener("click", listener(Command.Halt));
     }
 
     private collideWall() {
-        (this.drone.body as Phaser.Physics.Arcade.Body).setVelocity(0);
+        this.lastExecutedCommand = Command.Halt;
+        this.updatePlayer(Command.Halt);
+        // pin the player to the current cell so we don't get stuck
+        this.centerDroneOnCurrentCell();
+    }
+
+    private getCellAtCoords(x: number, y: number) {
+        return {
+            x: Math.floor(x / TILE_WIDTH),
+            y: Math.floor(y / TILE_WIDTH),
+        };
     }
 
     private getEntityImage(entity: Entity) {

@@ -9,3 +9,9 @@ body {
 .game-container {
     text-align: center;
 }
+
+.ui-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
