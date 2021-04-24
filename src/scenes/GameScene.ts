@@ -1,4 +1,4 @@
-import { GameObjects } from "phaser";
+import { GameObjects, Tilemaps } from "phaser";
 import { MoveableEntity } from "../classes/MoveableEntity";
 import { EntityType, Grid } from "../classes/Grid";
 import { TILE_WIDTH } from "../config";
@@ -44,6 +44,10 @@ export class GameScene extends Phaser.Scene {
 
     constructor() {
         super({ key: "GameScene" });
+    }
+
+    init(data: { levelDepth: number }): void {
+        this.levelDepth = data.levelDepth || 0;
     }
 
     preload(): void {
@@ -99,6 +103,7 @@ export class GameScene extends Phaser.Scene {
             "portal"
         );
         portal.setOrigin(0, 0);
+        this.physics.add.existing(portal);
 
         /** INIT INTERNAL PROPERTIES */
 
@@ -120,7 +125,7 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.overlap(
             this.drone,
             portal,
-            this.collideWall.bind(this)
+            this.collidePortal.bind(this)
         );
 
         /** CAMERA */
@@ -246,6 +251,12 @@ export class GameScene extends Phaser.Scene {
         // pin the player to the current cell so we don't get stuck
         entity.centerOnCurrentCell();
     }
+
+    private collidePortal() {
+        this.scene.restart({ levelDepth: this.levelDepth + 1 });
+    }
+
+    private collideHazard() {}
 
     private getEntityImage(entity: EntityType) {
         switch (entity) {
