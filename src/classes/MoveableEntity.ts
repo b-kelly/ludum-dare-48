@@ -56,6 +56,7 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
     processCommand(command: Command): void {
         const body = this.body;
         const velocity = TILE_WIDTH / (TICK_LENGTH_MS / 1000);
+        this.centerOnCurrentCell();
 
         // update the direction
         switch (command) {

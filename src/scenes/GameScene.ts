@@ -150,11 +150,13 @@ export class GameScene extends Phaser.Scene {
 
         /** PHYSICS */
 
+        this.physics.world.setBounds(0, 0, this.width, this.height);
         this.physics.world.setBoundsCollision();
-        this.physics.world.on(
-            "worldbounds",
-            this.collideWall.bind(this, this.drone)
-        );
+        // TODO This is causing weird collision issues even when not touching the bounds
+        // this.physics.world.on(
+        //     "worldbounds",
+        //     this.collideWall.bind(this, this.drone)
+        // );
 
         this.physics.add.overlap(
             this.drone,
@@ -213,7 +215,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     private doTick(time: number) {
-        this.drone.centerOnCurrentCell();
         this.setPing();
 
         // move items from the received queue to the ready queue as they mature
@@ -309,9 +310,7 @@ export class GameScene extends Phaser.Scene {
 
     private collideWall(entity: MoveableEntity) {
         this.lastExecutedCommand = Command.Halt;
-        this.drone.processCommand(Command.Halt);
-        // pin the player to the current cell so we don't get stuck
-        entity.centerOnCurrentCell();
+        entity.processCommand(Command.Halt);
     }
 
     private collideStatic() {
