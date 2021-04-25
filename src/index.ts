@@ -26,7 +26,7 @@ document.querySelector("#js-play-split-btn").addEventListener("click", () => {
         const link =
             new URL("./join.html", document.location.href).toString() +
             `?id=${encodeURIComponent(id)}`;
-        QRCode.toDataURL(link).then((v) => {
+        void QRCode.toDataURL(link).then((v) => {
             status.innerHTML = `Open <a href="${link}">this link</a> in your mobile browser or scan this QR code <img src="${v}" />`;
         });
     });

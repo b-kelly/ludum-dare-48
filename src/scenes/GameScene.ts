@@ -56,11 +56,21 @@ export class GameScene extends Phaser.Scene {
 
     preload(): void {
         // TODO sprite sheet!
-        this.load.image("drone", "assets/drone_1.png");
+        this.load.spritesheet("drone", "assets/drone_sheet.png", {
+            frameWidth: TILE_WIDTH,
+            frameHeight: TILE_WIDTH,
+        });
         this.load.image("portal", "assets/portal_1.png");
-        this.load.image(TileType[TileType.Ground], "assets/ground_2.png");
-        this.load.image(TileType[TileType.Wall], "assets/ground_1.png");
-        this.load.image(TileType[TileType.Static], "assets/static_1.png");
+        this.load.image(TileType[TileType.Ground], "assets/ground_x.png");
+        this.load.image(TileType[TileType.Wall], "assets/wall_x.png");
+        this.load.spritesheet(
+            TileType[TileType.Static],
+            "assets/static_sheet.png",
+            {
+                frameWidth: TILE_WIDTH,
+                frameHeight: TILE_WIDTH,
+            }
+        );
         this.load.image(EnemyType[EnemyType.MajorEnemy], "assets/enemy_1.png");
         this.load.image(EnemyType[EnemyType.MinorEnemy], "assets/enemy_2.png");
     }
@@ -85,12 +95,24 @@ export class GameScene extends Phaser.Scene {
         const walls: GameObjects.GameObject[] = [];
         const statics: GameObjects.GameObject[] = [];
 
+        this.createAnimations();
+
         for (let i = 0; i < countX; i++) {
             for (let j = 0; j < countY; j++) {
                 const x = i * TILE_WIDTH;
                 const y = j * TILE_WIDTH;
                 const contents = this.map.contents[i][j];
-                const img = this.add.image(x, y, TileType[contents]);
+                let img:
+                    | Phaser.GameObjects.RenderTexture
+                    | Phaser.GameObjects.Image;
+
+                // treat static as two images
+                if (contents === TileType.Static) {
+                    img = this.add.image(x, y, TileType[TileType.Ground]);
+                } else {
+                    img = this.add.image(x, y, TileType[contents]);
+                }
+
                 img.setOrigin(0, 0);
                 img.setTint(fgColor);
                 this.physics.add.existing(img);
@@ -99,6 +121,14 @@ export class GameScene extends Phaser.Scene {
                 if (contents === TileType.Wall) {
                     walls.push(img);
                 } else if (contents === TileType.Static) {
+                    const sprite = this.add
+                        .sprite(x, y, TileType[contents])
+                        .setOrigin(0, 0);
+                    sprite.anims.play(TileType[TileType.Static] + "_anim");
+                    this.physics.add.existing(sprite);
+                    (sprite.body as Phaser.Physics.Arcade.Body).setImmovable(
+                        true
+                    );
                     statics.push(img);
                 }
             }
@@ -109,6 +139,7 @@ export class GameScene extends Phaser.Scene {
         this.drone = new Drone(this);
         this.add.existing(this.drone);
         this.drone.moveToCell(this.map.playerStart.x, this.map.playerStart.y);
+        this.drone.anims.play("drone_idle", true);
 
         const portal = this.add.image(
             this.map.portal.x * TILE_WIDTH,
@@ -202,6 +233,67 @@ export class GameScene extends Phaser.Scene {
             x: Math.floor(x / TILE_WIDTH),
             y: Math.floor(y / TILE_WIDTH),
         };
+    }
+
+    private createAnimations() {
+        this.anims.create({
+            key: TileType[TileType.Static] + "_anim",
+            frames: TileType[TileType.Static],
+            repeat: -1,
+            frameRate: 4,
+        });
+
+        this.anims.create({
+            key: "drone_idle",
+            frames: this.anims.generateFrameNumbers("drone", {
+                start: 0,
+                end: 2,
+            }),
+            repeat: -1,
+            frameRate: 30,
+            repeatDelay: 5000,
+            yoyo: true,
+        });
+
+        this.anims.create({
+            key: "drone_left",
+            frames: this.anims.generateFrameNumbers("drone", {
+                start: 3,
+                end: 4,
+            }),
+            repeat: -1,
+            frameRate: 2,
+        });
+
+        this.anims.create({
+            key: "drone_right",
+            frames: this.anims.generateFrameNumbers("drone", {
+                start: 5,
+                end: 6,
+            }),
+            repeat: -1,
+            frameRate: 2,
+        });
+
+        this.anims.create({
+            key: "drone_up",
+            frames: this.anims.generateFrameNumbers("drone", {
+                start: 7,
+                end: 8,
+            }),
+            repeat: -1,
+            frameRate: 2,
+        });
+
+        this.anims.create({
+            key: "drone_down",
+            frames: this.anims.generateFrameNumbers("drone", {
+                start: 9,
+                end: 10,
+            }),
+            repeat: -1,
+            frameRate: 2,
+        });
     }
 
     private setPing() {

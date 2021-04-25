@@ -46,4 +46,8 @@ export class Enemy extends MoveableEntity {
         const index = getRandomInt(commands.length);
         this.processCommand(Command[commands[index] as keyof typeof Command]);
     }
+
+    protected playAnimation(): void {
+        return;
+    }
 }

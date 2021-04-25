@@ -2,7 +2,7 @@ import { TICK_LENGTH_MS, TILE_WIDTH } from "../config";
 import type { GameScene } from "../scenes/GameScene";
 import { Command } from "../utils";
 
-export abstract class MoveableEntity extends Phaser.GameObjects.Image {
+export abstract class MoveableEntity extends Phaser.GameObjects.Sprite {
     declare body: Phaser.Physics.Arcade.Body;
     declare scene: GameScene;
 
@@ -68,5 +68,9 @@ export abstract class MoveableEntity extends Phaser.GameObjects.Image {
             default:
                 body.setVelocity(0, 0);
         }
+
+        this.playAnimation(command);
     }
+
+    protected abstract playAnimation(command: Command): void;
 }
