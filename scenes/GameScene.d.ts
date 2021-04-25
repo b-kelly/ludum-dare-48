@@ -28,6 +28,7 @@ export declare class GameScene extends Phaser.Scene {
         x: number;
         y: number;
     };
+    private createAnimations;
     private setPing;
     private setQueuedInputTimes;
     private doTick;

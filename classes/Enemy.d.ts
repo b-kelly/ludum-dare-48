@@ -8,4 +8,5 @@ export declare class Enemy extends MoveableEntity {
     process(): void;
     private processHomeOnPlayer;
     private processRandomMovement;
+    protected playAnimation(): void;
 }

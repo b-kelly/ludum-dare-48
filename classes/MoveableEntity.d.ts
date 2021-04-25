@@ -1,6 +1,6 @@
 import type { GameScene } from "../scenes/GameScene";
 import { Command } from "../utils";
-export declare abstract class MoveableEntity extends Phaser.GameObjects.Image {
+export declare abstract class MoveableEntity extends Phaser.GameObjects.Sprite {
     body: Phaser.Physics.Arcade.Body;
     scene: GameScene;
     constructor(scene: GameScene, x: number, y: number, texture: string, frame?: string | number);
@@ -11,4 +11,5 @@ export declare abstract class MoveableEntity extends Phaser.GameObjects.Image {
         y: number;
     };
     processCommand(command: Command): void;
+    protected abstract playAnimation(command: Command): void;
 }
