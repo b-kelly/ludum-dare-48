@@ -12,18 +12,6 @@
         <input type="text" name="connectionId" />
         <button type="submit">Connect</button>
     </form>
-    <div class="ui-container js-ui-container d-none">
-        <div id="js-ping"></div>
-        <div id="js-executing"></div>
-        <div id="js-ready"></div>
-        <div id="js-queued"></div>
-        <button type="button" id="js-up-btn">Up</button>
-        <br>
-        <button type="button" id="js-left-btn">Left</button>
-        <button type="button" id="js-halt-btn">Halt</button>
-        <button type="button" id="js-right-btn">Right</button>
-        <br>
-        <button type="button" id="js-down-btn">Down</button>
-    </div>
+    <%= require('html-loader!./_controls.html').default %>
 </body>
 </html>
