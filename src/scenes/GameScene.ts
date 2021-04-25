@@ -261,23 +261,18 @@ export class GameScene extends Phaser.Scene {
     }
 
     private updateUi() {
-        // TODO update external UI
-        // TODO cache elements
-        document.querySelector("#js-ping").textContent = this.signalIsBlocked
-            ? "SIGNAL LOST"
-            : `Ping: ${this.currentPingValue}`;
-        document.querySelector("#js-queued").textContent =
-            "Sent: " +
-            this.queuedCommands.reduce(
-                (p, n) => `${p},${Command[n.command]}`,
-                ""
-            );
-        document.querySelector("#js-ready").textContent =
-            "Received: " +
-            this.readyCommands.reduce((p, n) => `${p},${Command[n]}`, "");
-        document.querySelector("#js-executing").textContent = `Executing: ${
-            Command[this.lastExecutedCommand] || Command[Command.Halt]
-        }`;
+        const plugin = this.plugins.get(
+            CommandEmitterPlugin.name,
+            true
+        ) as CommandEmitterPlugin;
+
+        plugin.updateClientData({
+            currentPing: this.currentPingValue,
+            signalIsBlocked: this.signalIsBlocked,
+            readyCommands: this.readyCommands,
+            queuedCommands: this.queuedCommands.map((c) => c.command),
+            lastExecutedCommand: this.lastExecutedCommand,
+        });
     }
 
     private setupInputListeners() {

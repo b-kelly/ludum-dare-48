@@ -1,5 +1,5 @@
 import { Command } from "../utils";
-import { CommandEmitterPlugin } from "./CommandEmitterPlugin";
+import { ClientData, CommandEmitterPlugin } from "./CommandEmitterPlugin";
 
 export class LocalCommandEmitterPlugin extends CommandEmitterPlugin {
     start(): void {
@@ -24,5 +24,23 @@ export class LocalCommandEmitterPlugin extends CommandEmitterPlugin {
     destroy(): void {
         // TODO proper destroy that removes the event listeners?
         super.destroy();
+    }
+
+    updateClientData(data: ClientData): void {
+        document.querySelector("#js-ping").textContent = data.signalIsBlocked
+            ? "SIGNAL LOST"
+            : `Ping: ${data.currentPing}`;
+
+        document.querySelector("#js-queued").textContent =
+            "Sent: " +
+            data.queuedCommands.reduce((p, n) => `${p},${Command[n]}`, "");
+
+        document.querySelector("#js-ready").textContent =
+            "Received: " +
+            data.readyCommands.reduce((p, n) => `${p},${Command[n]}`, "");
+
+        document.querySelector("#js-executing").textContent = `Executing: ${
+            Command[data.lastExecutedCommand] || Command[Command.Halt]
+        }`;
     }
 }
