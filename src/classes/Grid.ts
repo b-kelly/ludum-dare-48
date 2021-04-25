@@ -50,8 +50,8 @@ export class Grid {
 
     private generate() {
         // TODO actually smart generate the map
-        const wallPercentChance = 10;
-        const staticPercentChance = 10;
+        const wallPercentChance = 15;
+        const staticPercentChance = 5;
 
         for (let i = 0; i < this.width; i++) {
             for (let j = 0; j < this.height; j++) {
@@ -85,8 +85,8 @@ export class Grid {
 
         // slap some enemies onto the map
         // TODO intelligently place these as they can currently overlap with walls and eachother...
-        const minorEnemyCount = this.difficulty * 3 || 3;
-        const majorEnemyCount = Math.ceil(this.difficulty / 2);
+        const minorEnemyCount = this.difficulty * 3;
+        const majorEnemyCount = Math.ceil(this.difficulty / 2) - 1;
 
         for (let i = 0; i < minorEnemyCount; i++) {
             if (i < majorEnemyCount) {
