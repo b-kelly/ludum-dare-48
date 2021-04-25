@@ -5,6 +5,7 @@ import { ClientControllerPlugin } from "./plugins/ClientControllerPlugin";
 import { LocalClientControllerPlugin } from "./plugins/LocalClientControllerPlugin";
 import Peer from "peerjs";
 import { WebRtcClientControllerPlugin } from "./plugins/WebRtcClientControllerPlugin";
+import QRCode from "qrcode";
 
 document.querySelector("#js-play-single-btn").addEventListener("click", () => {
     document.querySelector(".js-ui-container").classList.remove("d-none");
@@ -22,12 +23,12 @@ document.querySelector("#js-play-split-btn").addEventListener("click", () => {
     const peer = new Peer(null);
     peer.on("open", (id) => {
         console.log("Connected with id: " + id);
-        status.innerHTML = `Open <a href="${new URL(
-            "./join.html",
-            document.location.href
-        ).toString()}?id=${encodeURIComponent(
-            id
-        )}">this link</a> in your mobile browser or scan this QR code (TODO)`;
+        const link =
+            new URL("./join.html", document.location.href).toString() +
+            `?id=${encodeURIComponent(id)}`;
+        QRCode.toDataURL(link).then((v) => {
+            status.innerHTML = `Open <a href="${link}">this link</a> in your mobile browser or scan this QR code <img src="${v}" />`;
+        });
     });
     peer.on("connection", (connection) => {
         console.log("peer connected");
