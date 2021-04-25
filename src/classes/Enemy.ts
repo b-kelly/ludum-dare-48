@@ -1,7 +1,7 @@
 import { GameScene } from "../scenes/GameScene";
-import { getRandomInt } from "../utils";
+import { Command, getRandomInt } from "../utils";
 import { EnemyType } from "./Grid";
-import { Command, MoveableEntity } from "./MoveableEntity";
+import { MoveableEntity } from "./MoveableEntity";
 
 export class Enemy extends MoveableEntity {
     readonly enemyType: EnemyType;

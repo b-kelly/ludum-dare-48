@@ -1,10 +1,11 @@
 import { GameObjects } from "phaser";
-import { Command, MoveableEntity } from "../classes/MoveableEntity";
+import { MoveableEntity } from "../classes/MoveableEntity";
 import { TileType, Grid, EnemyType } from "../classes/Grid";
 import { TICK_LENGTH_MS, TILE_WIDTH } from "../config";
-import { getRandomInt } from "../utils";
+import { Command, getRandomInt } from "../utils";
 import { Drone } from "../classes/Drone";
 import { Enemy } from "../classes/Enemy";
+import { CommandEmitterPlugin } from "../plugins/CommandEmitterPlugin";
 
 interface QueuedCommand {
     command: Command;
@@ -280,11 +281,15 @@ export class GameScene extends Phaser.Scene {
     }
 
     private setupInputListeners() {
-        // TODO accept input from buttons clicks / network only!
-        const listener = (command: Command) => {
-            return (e: Event) => {
-                e.preventDefault();
-                e.stopPropagation();
+        const plugin = this.plugins.get(
+            CommandEmitterPlugin.name,
+            true
+        ) as CommandEmitterPlugin;
+
+        // add a listener for each command type
+        Object.keys(Command).forEach((c) => {
+            const command = Command[c as keyof typeof Command];
+            plugin.on(command, () => {
                 if (this.signalIsBlocked) {
                     return;
                 }
@@ -292,24 +297,8 @@ export class GameScene extends Phaser.Scene {
                     command: command,
                     executeAfter: 0,
                 });
-            };
-        };
-
-        document
-            .querySelector("#js-up-btn")
-            .addEventListener("click", listener(Command.Up));
-        document
-            .querySelector("#js-down-btn")
-            .addEventListener("click", listener(Command.Down));
-        document
-            .querySelector("#js-left-btn")
-            .addEventListener("click", listener(Command.Left));
-        document
-            .querySelector("#js-right-btn")
-            .addEventListener("click", listener(Command.Right));
-        document
-            .querySelector("#js-halt-btn")
-            .addEventListener("click", listener(Command.Halt));
+            });
+        });
     }
 
     private collideWall(entity: MoveableEntity) {

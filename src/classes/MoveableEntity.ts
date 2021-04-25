@@ -1,13 +1,6 @@
 import { TICK_LENGTH_MS, TILE_WIDTH } from "../config";
 import type { GameScene } from "../scenes/GameScene";
-
-export enum Command {
-    Halt,
-    Left,
-    Right,
-    Up,
-    Down,
-}
+import { Command } from "../utils";
 
 export abstract class MoveableEntity extends Phaser.GameObjects.Image {
     declare body: Phaser.Physics.Arcade.Body;
