@@ -6,6 +6,8 @@ export interface ClientUiData {
     readyCommands: Command[];
     queuedCommands: Command[];
     signalIsBlocked: boolean;
+    fgColor: number;
+    bgColor: number;
 }
 
 export abstract class ClientControllerPlugin extends Phaser.Plugins.BasePlugin {

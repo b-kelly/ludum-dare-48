@@ -367,12 +367,15 @@ export class GameScene extends Phaser.Scene {
             true
         ) as ClientControllerPlugin;
 
+        const bgColor = this.cameras.main.backgroundColor.color;
         plugin.updateClientData({
             currentPing: this.currentPingValue,
             signalIsBlocked: this.signalIsBlocked,
             readyCommands: this.readyCommands,
             queuedCommands: this.queuedCommands.map((c) => c.command),
             lastExecutedCommand: this.lastExecutedCommand,
+            bgColor: bgColor,
+            fgColor: bgColor ^ 0xffffff,
         });
     }
 
