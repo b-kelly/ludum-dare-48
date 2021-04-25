@@ -2,7 +2,7 @@ import { GameObjects } from "phaser";
 import { MoveableEntity } from "../classes/MoveableEntity";
 import { TileType, Grid, EnemyType } from "../classes/Grid";
 import { TICK_LENGTH_MS, TILE_WIDTH } from "../config";
-import { Command, getRandomInt } from "../utils";
+import { Command, getRandomInt, setInstruction } from "../utils";
 import { Drone } from "../classes/Drone";
 import { Enemy } from "../classes/Enemy";
 import { ClientControllerPlugin } from "../plugins/ClientControllerPlugin";
@@ -81,6 +81,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     create(): void {
+        if (this.levelDepth === 0) {
+            setInstruction("gamestart");
+        } else if (this.levelDepth === 1) {
+            setInstruction("newlevel");
+        }
+
         this.readyCommands = [];
         this.queuedCommands = [];
 
