@@ -23,8 +23,8 @@ document.querySelector("#js-play-split-btn").addEventListener("click", () => {
     peer.on("open", (id) => {
         console.log("Connected with id: " + id);
         status.innerHTML = `Open <a href="${new URL(
-            "/join.html",
-            document.location.origin
+            "./join.html",
+            document.location.href
         ).toString()}?id=${encodeURIComponent(
             id
         )}">this link</a> in your mobile browser or scan this QR code (TODO)`;
