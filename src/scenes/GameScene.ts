@@ -5,7 +5,7 @@ import { TICK_LENGTH_MS, TILE_WIDTH } from "../config";
 import { Command, getRandomInt } from "../utils";
 import { Drone } from "../classes/Drone";
 import { Enemy } from "../classes/Enemy";
-import { CommandEmitterPlugin } from "../plugins/CommandEmitterPlugin";
+import { ClientControllerPlugin } from "../plugins/ClientControllerPlugin";
 
 interface QueuedCommand {
     command: Command;
@@ -262,9 +262,9 @@ export class GameScene extends Phaser.Scene {
 
     private updateUi() {
         const plugin = this.plugins.get(
-            CommandEmitterPlugin.name,
+            ClientControllerPlugin.name,
             true
-        ) as CommandEmitterPlugin;
+        ) as ClientControllerPlugin;
 
         plugin.updateClientData({
             currentPing: this.currentPingValue,
@@ -277,9 +277,9 @@ export class GameScene extends Phaser.Scene {
 
     private setupInputListeners() {
         const plugin = this.plugins.get(
-            CommandEmitterPlugin.name,
+            ClientControllerPlugin.name,
             true
-        ) as CommandEmitterPlugin;
+        ) as ClientControllerPlugin;
 
         // add a listener for each command type
         Object.keys(Command).forEach((c) => {

@@ -1,7 +1,7 @@
 import { Command } from "../utils";
-import { ClientData, CommandEmitterPlugin } from "./CommandEmitterPlugin";
+import { ClientUiData, ClientControllerPlugin } from "./ClientControllerPlugin";
 
-export class LocalCommandEmitterPlugin extends CommandEmitterPlugin {
+export class LocalClientControllerPlugin extends ClientControllerPlugin {
     start(): void {
         super.start();
         document
@@ -26,7 +26,7 @@ export class LocalCommandEmitterPlugin extends CommandEmitterPlugin {
         super.destroy();
     }
 
-    updateClientData(data: ClientData): void {
+    updateClientData(data: ClientUiData): void {
         document.querySelector("#js-ping").textContent = data.signalIsBlocked
             ? "SIGNAL LOST"
             : `Ping: ${data.currentPing}`;

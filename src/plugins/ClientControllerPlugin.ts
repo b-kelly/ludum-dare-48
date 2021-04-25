@@ -1,6 +1,6 @@
 import { Command } from "../utils";
 
-export interface ClientData {
+export interface ClientUiData {
     currentPing: number;
     lastExecutedCommand: Command;
     readyCommands: Command[];
@@ -8,7 +8,7 @@ export interface ClientData {
     signalIsBlocked: boolean;
 }
 
-export abstract class CommandEmitterPlugin extends Phaser.Plugins.BasePlugin {
+export abstract class ClientControllerPlugin extends Phaser.Plugins.BasePlugin {
     private callbacks: Map<Command, () => void>;
 
     constructor(pluginManager: Phaser.Plugins.PluginManager) {
@@ -28,7 +28,7 @@ export abstract class CommandEmitterPlugin extends Phaser.Plugins.BasePlugin {
         this.callbacks.set(command, callback);
     }
 
-    abstract updateClientData(data: ClientData): void;
+    abstract updateClientData(data: ClientUiData): void;
 
     protected emit(command: Command): void {
         const callback = this.callbacks.get(command);
