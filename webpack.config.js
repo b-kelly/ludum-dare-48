@@ -20,7 +20,6 @@ module.exports = (_, argv) => {
             },
             contentBase: "./dist",
             compress: true,
-            hot: false,
         },
         module: {
             rules: [

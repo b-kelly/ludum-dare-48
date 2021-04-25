@@ -1,6 +1,6 @@
 import { Command } from "../utils";
 
-export interface ClientData {
+export interface ClientUiData {
     currentPing: number;
     lastExecutedCommand: Command;
     readyCommands: Command[];
@@ -28,7 +28,7 @@ export abstract class ClientControllerPlugin extends Phaser.Plugins.BasePlugin {
         this.callbacks.set(command, callback);
     }
 
-    abstract updateClientData(data: ClientData): void;
+    abstract updateClientData(data: ClientUiData): void;
 
     protected emit(command: Command): void {
         const callback = this.callbacks.get(command);

@@ -1,5 +1,5 @@
 import { Command } from "../utils";
-import { ClientData, ClientControllerPlugin } from "./ClientControllerPlugin";
+import { ClientUiData, ClientControllerPlugin } from "./ClientControllerPlugin";
 
 export class LocalClientControllerPlugin extends ClientControllerPlugin {
     start(): void {
@@ -26,7 +26,7 @@ export class LocalClientControllerPlugin extends ClientControllerPlugin {
         super.destroy();
     }
 
-    updateClientData(data: ClientData): void {
+    updateClientData(data: ClientUiData): void {
         document.querySelector("#js-ping").textContent = data.signalIsBlocked
             ? "SIGNAL LOST"
             : `Ping: ${data.currentPing}`;

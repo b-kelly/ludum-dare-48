@@ -4,36 +4,42 @@ import { gameConfig } from "./config";
 import { ClientControllerPlugin } from "./plugins/ClientControllerPlugin";
 import { LocalClientControllerPlugin } from "./plugins/LocalClientControllerPlugin";
 import Peer from "peerjs";
+import { WebRtcClientControllerPlugin } from "./plugins/WebRtcClientControllerPlugin";
 
 document.querySelector("#js-play-single-btn").addEventListener("click", () => {
+    document.querySelector(".js-ui-container").classList.remove("d-none");
     startGame(LocalClientControllerPlugin);
 });
 
 document.querySelector("#js-play-split-btn").addEventListener("click", () => {
+    document.querySelector(".js-step-1-container").classList.add("d-none");
+    document
+        .querySelector(".js-step-connect-container")
+        .classList.remove("d-none");
+    const status = document.querySelector("#js-status");
+
     console.log("opening connection");
-    const peer = new Peer("bkelly-ldjam48", {
-        debug: 2,
-        host: "localhost", // "peerjs-server.centralus.azurecontainer.io",
-        port: 9000,
-        path: "/myapp",
+    const peer = new Peer(null);
+    peer.on("open", (id) => {
+        console.log("Connected with id: " + id);
+        status.innerHTML = `Open <a href="${new URL(
+            "/join.html",
+            document.location.origin
+        ).toString()}?id=${encodeURIComponent(
+            id
+        )}">this link</a> in your mobile browser or scan this QR code (TODO)`;
     });
-    peer.on("connection", (conn) => {
+    peer.on("connection", (connection) => {
         console.log("peer connected");
-        conn.on("data", (data) => {
-            // Will print 'hi!'
-            console.log(data);
-        });
-        conn.on("open", () => {
-            conn.send("hello!");
-        });
-        conn.on("error", (data) => {
-            console.log("Error", data);
-        });
+        startGame(WebRtcClientControllerPlugin, { connection });
     });
 });
 
 function startGame(plugin: typeof ClientControllerPlugin, data?: unknown) {
     document.querySelector(".js-step-1-container").classList.add("d-none");
+    document
+        .querySelector(".js-step-connect-container")
+        .classList.add("d-none");
     document.querySelector(".js-step-2-container").classList.remove("d-none");
 
     gameConfig.plugins = {

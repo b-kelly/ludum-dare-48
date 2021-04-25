@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ludum Dare 48</title>
-    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 </head>
 <body>
     <div class="js-step-1-container">
@@ -15,9 +14,12 @@
             <button type="button" id="js-play-split-btn">With a cell phone</button><button type="button" id="js-play-single-btn">Just in this browser</button>
         </p>
     </div>
+    <div class="js-step-connect-container d-none">
+        <p id="js-status">Establishing a new session...</p>
+    </div>
     <div class="js-step-2-container d-none">
         <div id="js-game-container" class="game-container"></div>
-        <div class="ui-container">
+        <div class="ui-container js-ui-container d-none">
             <div id="js-ping"></div>
             <div id="js-executing"></div>
             <div id="js-ready"></div>
@@ -31,7 +33,7 @@
             <button type="button" id="js-down-btn">Down</button>
         </div>
 
-        <div class="debug-container">
+        <div class="debug-container d-none">
             <button type="button" id="js-debugmode">Toggle debug mode</button>
         </div>
     </div>

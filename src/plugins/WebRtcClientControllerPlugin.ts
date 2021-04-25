@@ -1,13 +1,23 @@
-import { ClientControllerPlugin } from "./ClientControllerPlugin";
-//import Peer from "peerjs";
+import { ClientControllerPlugin, ClientUiData } from "./ClientControllerPlugin";
+import Peer from "peerjs";
+import { Command } from "../utils";
+
+export interface CommandData {
+    type: "command";
+    command: Command;
+}
 
 export class WebRtcClientControllerPlugin extends ClientControllerPlugin {
-    // init(data: { connection: Peer }): void {
-    //     const peer = new Peer("bkelly-ldjam48");
-    //     peer.on("data", () => {
-    //         console.log("peer connected!");
-    //     });
-    // }
+    private connection: Peer.DataConnection;
+
+    init(data: { connection: Peer.DataConnection }): void {
+        this.connection = data.connection;
+        this.connection.on("data", (data: CommandData) => {
+            if (data.type === "command") {
+                this.emit(data.command);
+            }
+        });
+    }
 
     start(): void {
         super.start();
@@ -18,7 +28,7 @@ export class WebRtcClientControllerPlugin extends ClientControllerPlugin {
         super.destroy();
     }
 
-    updateClientData(): void {
-        // TODO
+    updateClientData(data: ClientUiData): void {
+        this.connection.send(data);
     }
 }
