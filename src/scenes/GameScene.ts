@@ -73,6 +73,11 @@ export class GameScene extends Phaser.Scene {
         );
         this.load.image(EnemyType[EnemyType.MajorEnemy], "assets/enemy_1.png");
         this.load.image(EnemyType[EnemyType.MinorEnemy], "assets/enemy_2.png");
+
+        this.load.audio("bump", "assets/bump.wav");
+        this.load.audio("static", "assets/static.wav");
+        this.load.audio("portal", "assets/portal.wav");
+        this.load.audio("death", "assets/death.wav");
     }
 
     create(): void {
@@ -344,11 +349,15 @@ export class GameScene extends Phaser.Scene {
         if (this.signalIsBlocked && !textureIsVisible) {
             this.signalBlockedTexture.setVisible(true);
             this.resetCameraZoom();
+            this.sound.play("static", {
+                loop: true,
+            });
         } else if (!this.signalIsBlocked && textureIsVisible) {
             // if the signal isn't blocked, there's nothing to do
             this.signalBlockedCount = 0;
             this.zoomCameraOnPlayer();
             this.signalBlockedTexture.setVisible(false);
+            this.sound.stopByKey("static");
         }
     }
 
@@ -389,6 +398,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private collideWall(entity: MoveableEntity) {
+        this.sound.play("bump");
         this.lastExecutedCommand = Command.Halt;
         entity.processCommand(Command.Halt);
     }
@@ -403,10 +413,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     private collidePortal() {
+        this.sound.play("portal");
         this.scene.start("Game", { levelDepth: this.levelDepth + 1 });
     }
 
     private collideEnemy() {
+        this.sound.play("death");
         this.transitionToGameOver("Destroyed by hostile life");
     }
 
