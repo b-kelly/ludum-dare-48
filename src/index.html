@@ -11,24 +11,24 @@
     <div id="js-instructions" class="instructions">
         <section data-text="intro">
             <p>
-                Hello operator! I am your deep space exporer unit, designation DSE-LD48, but you can call me DESIE for short!
-                We've successfully located a wormhole on the ourskirts of this sector. Isn't that exciting?!
+                <strong>Hello operator!</strong> I am your deep space exporer unit, designation DSE-LD48, but you can call me <strong>「DESIE」</strong> for short!
+                We&apos;ve successfully located a wormhole on the ourskirts of this sector. Isn&apos;t that exciting?!
             </p>
-            <button type="button" class="js-proceed" data-next="mode"><div>I can't wait!</div></button>
-            <button type="button" class="js-proceed" data-next="mode"><div>Gee, calm down...</div></button>
+            <button type="button" class="js-proceed" data-next="mode"><div>OMG I can&apos;t wait!</div></button>
+            <button type="button" class="js-proceed" data-next="mode"><div>Gee, take it down a notch...</div></button>
         </section>
         <section data-text="mode" class="d-none">
             <p>
-                Now, this mission is best controlled with a mobile cellular operations device (a "cell phone"), but thanks to the state of the art tech they're popping out down at the lab,
-                you can also take command right from the comfort of your desk? How would you like to proceed?
+                Now, this mission is best controlled with a companion mobile cellular operations device (or, "cell phone" as some like to call it), but thanks to the state of the art tech they&apos;re popping out down at the lab,
+                you can also take command right from the comfort of your desk. How would you like to proceed?
             </p>
             <button type="button" class="js-proceed" data-next="mode:split"><div>Connect a mobile browser</div></button>
             <button type="button" class="js-proceed" data-next="mode:solo"><div>Play on this screen only</div></button>
         </section>
         <section data-text="connecting" class="d-none">
             <p>
-                Right, just one more step to connect your wireless device. I recommend scanning this QR code to connect, but you can also follow <a href="#" target="_blank" id="js-connect-link">this link</a>.
-                Go ahead, I'll wait.
+                Right, just <em>one more step</em> to connect your wireless device. I recommend scanning this QR code to connect, but you can also follow <a href="#" target="_blank" id="js-connect-link">this link</a>.
+                Go ahead, I&apos;ll wait.
             </p>
             <div id="js-qr-container" class="qr-container">
                 <div class="spinner"></div>
@@ -36,19 +36,21 @@
         </section>
         <section data-text="gamestart" class="d-none">
             <p>
-                Nice! Let's get started. My goodness, isn't this an... interesting universe. Let's see if we can't make our way to the next portal.
-                Keep an eye on the signal's ping, the higher it is, the longer it takes for me to receive a command from your console.
+                Nice! Let&apos;s get started. My goodness, isn&apos;t this an... interesting universe. Let&apos;s see if we can&apos;t make our way to the next portal.
+                Keep an eye on the signal&apos;s ping, the higher it is, the longer it takes for me to receive a command from your console.
             </p>
-            <button type="button" class="js-proceed"><div>Got it</div></button>
+            <button type="button" class="js-proceed"><div>Got it, thanks</div></button>
+            <button type="button" class="js-proceed"><div>Isn&apos;t that juuust great.</div></button>
         </section>
         <section data-text="newlevel" class="d-none">
-            <p>Yikes! Watch out for those... Y'know, I honestly can't tell what those are. Also, be careful of the static hazards. I'd hate to get disconnected!</p>
+            <p>Yikes! Watch out for those... Y&apos;know, I honestly can&apos;t tell what those are. Also, be careful of the static hazards. I&apos;d hate to get disconnected!</p>
             <button type="button" class="js-proceed"><div>Roger that</div></button>
+            <button type="button" class="js-proceed"><div>Yeah, that&apos;d be a <em>real</em> shame.</div></button>
         </section>
     </div>
-    <div class="js-step-2-container d-none">
-        <div id="js-game-container" class="game-container"></div>
+    <div class="js-step-2-container d-flex d-none">
         <%= require('html-loader!./_controls.html').default %>
+        <div id="js-game-container" class="game-container fill"></div>
 
         <div class="debug-container d-none">
             <button type="button" id="js-debugmode">Toggle debug mode</button>

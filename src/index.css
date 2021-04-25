@@ -25,6 +25,10 @@ body {
     font-family: "Titillium Web", sans-serif;
 }
 
+.join-body {
+    text-align: center;
+}
+
 p {
     margin: 0;
     padding: 0;
@@ -35,14 +39,53 @@ p {
 }
 
 .ui-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    text-align: center;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Bigger than phone landscape */
+@media only screen and (max-width: 480px) and (orientation: landscape) {
+    .ui-container {
+        flex-direction: row;
+    }
+
+    .client-data {
+        flex-grow: 1;
+    }
+}
+
+.ui-container .control-buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.client-data {
+    text-align: left;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
 }
 
 .ui-container button {
     width: 50px;
+    height: 50px;
+    margin: 4px;
+    border-radius: 0;
+    border: none;
+    text-align: center;
+    font-size: 32px;
+    background-color: transparent;
+    color: var(--color);
+    cursor: pointer;
+}
+
+.ui-container button:hover,
+.ui-container button:focus {
+    color: var(--color-h);
+    background-color: rgb(5, 29, 32);
 }
 
 .instructions {
@@ -126,6 +169,10 @@ a:hover {
     color: var(--color-h);
 }
 
+strong {
+    color: var(--highlight);
+}
+
 .spinner {
     height: 16px;
     width: 16px;
@@ -153,4 +200,13 @@ a:hover {
 
 .d-none {
     display: none !important;
+}
+
+.d-flex {
+    display: flex;
+    flex-direction: row;
+}
+
+.fill {
+    flex-grow: 1;
 }
