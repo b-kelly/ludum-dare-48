@@ -6,3 +6,4 @@ export declare enum Command {
     Down = 4
 }
 export declare function getRandomInt(max: number): number;
+export declare function setInstruction(key: string): void;
