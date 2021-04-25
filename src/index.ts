@@ -6,41 +6,60 @@ import { LocalClientControllerPlugin } from "./plugins/LocalClientControllerPlug
 import Peer from "peerjs";
 import { WebRtcClientControllerPlugin } from "./plugins/WebRtcClientControllerPlugin";
 import QRCode from "qrcode";
+import { setInstruction } from "./utils";
 
-document.querySelector("#js-play-single-btn").addEventListener("click", () => {
-    document.querySelector(".js-ui-container").classList.remove("d-none");
-    startGame(LocalClientControllerPlugin);
-});
+document
+    .querySelector("#js-instructions")
+    .addEventListener("click", function (e) {
+        if (!(e.target as HTMLElement).classList.contains("js-proceed")) {
+            return;
+        }
 
-document.querySelector("#js-play-split-btn").addEventListener("click", () => {
-    document.querySelector(".js-step-1-container").classList.add("d-none");
-    document
-        .querySelector(".js-step-connect-container")
-        .classList.remove("d-none");
-    const status = document.querySelector("#js-status");
+        e.stopPropagation();
+        e.preventDefault();
 
-    console.log("opening connection");
+        const next = (e.target as HTMLElement).dataset.next;
+
+        if (!next) {
+            setInstruction(null);
+            return;
+        } else if (next === "mode:split") {
+            startConnection();
+        } else if (next === "mode:solo") {
+            document
+                .querySelector(".js-ui-container")
+                .classList.remove("d-none");
+            startGame(LocalClientControllerPlugin);
+        } else {
+            setInstruction(next);
+        }
+    });
+
+function startConnection() {
+    setInstruction("connecting");
+
     const peer = new Peer(null);
     peer.on("open", (id) => {
         console.log("Connected with id: " + id);
         const link =
             new URL("./join.html", document.location.href).toString() +
             `?id=${encodeURIComponent(id)}`;
+        document.querySelector("#js-connect-link").setAttribute("href", link);
         void QRCode.toDataURL(link).then((v) => {
-            status.innerHTML = `Open <a href="${link}">this link</a> in your mobile browser or scan this QR code <img src="${v}" />`;
+            document.querySelector(
+                "#js-qr-container"
+            ).innerHTML = `<img src="${v}" />`;
         });
     });
+
+    // wait for the remote connection before starting the game
     peer.on("connection", (connection) => {
-        console.log("peer connected");
         startGame(WebRtcClientControllerPlugin, { connection });
     });
-});
+}
 
 function startGame(plugin: typeof ClientControllerPlugin, data?: unknown) {
-    document.querySelector(".js-step-1-container").classList.add("d-none");
-    document
-        .querySelector(".js-step-connect-container")
-        .classList.add("d-none");
+    setInstruction(null);
     document.querySelector(".js-step-2-container").classList.remove("d-none");
 
     gameConfig.plugins = {

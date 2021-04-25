@@ -7,15 +7,33 @@
     <title>Ludum Dare 48</title>
 </head>
 <body>
-    <div class="js-step-1-container">
-        <p>This game is best played with a companion cell phone screen.</p>
-        <p>
-            Would you like to play this game <strong>both</strong> in this browser <em>and</em> in your phone's browser, or would you rather just play in <em>this browser alone</em>?
-            <button type="button" id="js-play-split-btn">With a cell phone</button><button type="button" id="js-play-single-btn">Just in this browser</button>
+    <div id="js-instructions">
+        <p data-text="intro">
+            Hello operator! I am your deep space exporer unit, designation DSE-LD48, but you can call me DESIE for short!
+            We've successfully located a wormhole on the ourskirts of this sector. Isn't that exciting?!
+            <button type="button" class="js-proceed" data-next="mode">I can't wait!</button>
+            <button type="button" class="js-proceed" data-next="mode">Gee, calm down...</button>
         </p>
-    </div>
-    <div class="js-step-connect-container d-none">
-        <p id="js-status">Establishing a new session...</p>
+        <p data-text="mode" class="d-none">
+            Now, this mission is best controlled with a mobile cellular operations device (a "cell phone"), but thanks to the state of the art tech they're popping out down at the lab,
+            you can also take command right from the comfort of your desk? How would you like to proceed?
+            <button type="button" class="js-proceed" data-next="mode:split">Connect a mobile browser</button>
+            <button type="button" class="js-proceed" data-next="mode:solo">Play on this screen only</button>
+        </p>
+        <p data-text="connecting" class="d-none">
+            Right, just one more step to connect your wireless device. I recommend scanning this QR code to connect, but you can also follow <a href="#" target="_blank" id="js-connect-link">this link</a>.
+            Go ahead, I'll wait.
+            <span id="js-qr-container"></span>
+        </p>
+        <p data-text="gamestart" class="d-none">
+            Nice! Let's get started. My goodness, isn't this an... interesting universe. Let's see if we can't make our way to the next portal.
+            Keep an eye on the signal's ping, the higher it is, the longer it takes for me to receive a command from your console.
+            <button type="button" class="js-proceed">Got it</button>
+        </p>
+        <p data-text="newlevel" class="d-none">
+            Yikes! Watch out for those... Y'know, I honestly can't tell what those are. Also, be careful of the static hazards. I'd hate to get disconnected!
+            <button type="button" class="js-proceed">Roger that</button>
+        </p>
     </div>
     <div class="js-step-2-container d-none">
         <div id="js-game-container" class="game-container"></div>
@@ -24,5 +42,6 @@
         <div class="debug-container d-none">
             <button type="button" id="js-debugmode">Toggle debug mode</button>
         </div>
+    </div>
 </body>
 </html>
