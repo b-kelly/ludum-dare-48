@@ -44,8 +44,8 @@ p {
     flex-direction: column;
 }
 
-/* Bigger than phone landscape */
-@media only screen and (max-width: 480px) and (orientation: landscape) {
+/* Phone landscape only */
+@media only screen and (max-width: 1024px) and (orientation: landscape) {
     .ui-container {
         flex-direction: row;
     }
