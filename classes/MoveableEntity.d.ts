@@ -1,11 +1,5 @@
 import type { GameScene } from "../scenes/GameScene";
-export declare enum Command {
-    Halt = 0,
-    Left = 1,
-    Right = 2,
-    Up = 3,
-    Down = 4
-}
+import { Command } from "../utils";
 export declare abstract class MoveableEntity extends Phaser.GameObjects.Image {
     body: Phaser.Physics.Arcade.Body;
     scene: GameScene;
