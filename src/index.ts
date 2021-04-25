@@ -11,14 +11,16 @@ import { setInstruction } from "./utils";
 document
     .querySelector("#js-instructions")
     .addEventListener("click", function (e) {
-        if (!(e.target as HTMLElement).classList.contains("js-proceed")) {
+        const target = e.target as HTMLElement;
+        const closestBtn = target.closest<HTMLElement>(".js-proceed");
+        if (!closestBtn) {
             return;
         }
 
         e.stopPropagation();
         e.preventDefault();
 
-        const next = (e.target as HTMLElement).dataset.next;
+        const next = closestBtn.dataset.next;
 
         if (!next) {
             setInstruction(null);
