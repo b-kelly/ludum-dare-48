@@ -1,7 +1,7 @@
 import { Command } from "../utils";
-import { ClientData, CommandEmitterPlugin } from "./CommandEmitterPlugin";
+import { ClientData, ClientControllerPlugin } from "./ClientControllerPlugin";
 
-export class LocalCommandEmitterPlugin extends CommandEmitterPlugin {
+export class LocalClientControllerPlugin extends ClientControllerPlugin {
     start(): void {
         super.start();
         document

@@ -8,7 +8,7 @@ export interface ClientData {
     signalIsBlocked: boolean;
 }
 
-export abstract class CommandEmitterPlugin extends Phaser.Plugins.BasePlugin {
+export abstract class ClientControllerPlugin extends Phaser.Plugins.BasePlugin {
     private callbacks: Map<Command, () => void>;
 
     constructor(pluginManager: Phaser.Plugins.PluginManager) {

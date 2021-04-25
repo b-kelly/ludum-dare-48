@@ -7,7 +7,10 @@ const webpack = require("webpack");
 module.exports = (_, argv) => {
     var isProd = argv.mode === "production";
     return {
-        entry: "./src/index.ts",
+        entry: {
+            index: "./src/index.ts",
+            join: "./src/join.ts",
+        },
         mode: isProd ? "production" : "development",
         devtool: isProd ? false : "inline-source-map",
         devServer: {
@@ -17,6 +20,7 @@ module.exports = (_, argv) => {
             },
             contentBase: "./dist",
             compress: true,
+            hot: false,
         },
         module: {
             rules: [
@@ -42,6 +46,12 @@ module.exports = (_, argv) => {
             new CleanWebpackPlugin(),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
+                chunks: ["index"],
+            }),
+            new HtmlWebpackPlugin({
+                filename: "join.html",
+                template: "./src/join.html",
+                chunks: ["join"],
             }),
             new webpack.DefinePlugin({
                 CANVAS_RENDERER: JSON.stringify(true),
