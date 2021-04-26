@@ -185,6 +185,7 @@ export class GameScene extends Phaser.Scene {
                     origin: 0.5,
                     text: "SIGNAL LOST\nReconnecting...",
                     style: {
+                        fontFamily: `"Titillium Web", sans-serif`,
                         align: "center",
                     },
                 },

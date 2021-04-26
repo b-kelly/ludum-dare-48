@@ -17,7 +17,10 @@ export class GameOverScene extends Phaser.Scene {
         this.add.text(
             0,
             0,
-            `${this.reason}\nGame Over\nUniverses explored: ${this.score}`
+            `${this.reason}\nGame Over\nUniverses explored: ${this.score}`,
+            {
+                fontFamily: `"Titillium Web", sans-serif`,
+            }
         );
     }
 }
