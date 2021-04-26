@@ -12,6 +12,7 @@ export class GameOverScene extends Phaser.Scene {
     }
 
     create(): void {
+        this.sound.stopAll();
         this.cameras.main.setBackgroundColor(0x000000);
         this.add.text(
             0,
