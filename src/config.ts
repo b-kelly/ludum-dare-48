@@ -3,7 +3,7 @@ import { GameScene } from "./scenes/GameScene";
 
 export const TILE_WIDTH = 16;
 // only tick once every n seconds
-export const TICK_LENGTH_MS = 1.0 * 1000;
+export const TICK_LENGTH_MS = 0.75 * 1000;
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
     title: "Sample",
