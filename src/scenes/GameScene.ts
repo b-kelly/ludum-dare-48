@@ -375,14 +375,16 @@ export class GameScene extends Phaser.Scene {
             this.portal
         );
 
-        const rate = Math.min(distance, 2000) / 1000;
+        let rate = Math.min(distance, 500);
+        rate = 500 - rate;
+        rate = Math.floor(rate / 100) * 100;
 
         // TODO!
         this.sound.stopByKey("ping");
         this.sound.play("ping", {
             volume: 0.1,
             loop: true,
-            rate: 1 / rate,
+            rate: rate / 250,
         });
 
         console.log(distance);
