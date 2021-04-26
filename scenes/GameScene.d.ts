@@ -7,6 +7,7 @@ export declare class GameScene extends Phaser.Scene {
     /** The command that is currently being executed */
     private lastExecutedCommand;
     drone: Drone;
+    private portal;
     private enemies;
     private map;
     private currentPingValue;
@@ -32,6 +33,7 @@ export declare class GameScene extends Phaser.Scene {
     private setPing;
     private setQueuedInputTimes;
     private doTick;
+    private updatePortalDetector;
     private updateSignalBlockStatus;
     private updateUi;
     private setupInputListeners;
