@@ -25,6 +25,7 @@ export class GameScene extends Phaser.Scene {
     private lastExecutedCommand: Command;
 
     drone: Drone;
+    private portal: Phaser.GameObjects.Sprite;
     private enemies: Enemy[];
 
     private map: Grid;
@@ -80,6 +81,7 @@ export class GameScene extends Phaser.Scene {
         this.load.audio("static", "assets/static.wav");
         this.load.audio("portal", "assets/portal.wav");
         this.load.audio("death", "assets/death.wav");
+        this.load.audio("ping", "assets/ping.wav");
     }
 
     create(): void {
@@ -163,6 +165,7 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.existing(portal);
         portal.anims.play("portal_anim");
         portal.setTint(fgColor);
+        this.portal = portal;
 
         /** ADD ENEMIES */
         this.enemies = [];
@@ -356,11 +359,33 @@ export class GameScene extends Phaser.Scene {
             this.lastExecutedCommand = this.readyCommands.shift();
         }
 
+        this.updatePortalDetector();
+
         this.updateSignalBlockStatus();
         this.updateUi();
 
         this.drone.processCommand(this.lastExecutedCommand);
         this.enemies.forEach((e) => e.process());
+    }
+
+    private updatePortalDetector() {
+        //TODO
+        const distance = Phaser.Math.Distance.BetweenPoints(
+            this.drone,
+            this.portal
+        );
+
+        const max = Math.max(distance, 1000) / 100;
+        const rate = Math.min(2 / max, 0.5);
+
+        // TODO!
+        this.sound.stopByKey("ping");
+        this.sound.play("ping", {
+            loop: true,
+            rate: rate,
+        });
+
+        console.log(distance);
     }
 
     private updateSignalBlockStatus() {
