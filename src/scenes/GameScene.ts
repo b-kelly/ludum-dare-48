@@ -359,7 +359,7 @@ export class GameScene extends Phaser.Scene {
             this.lastExecutedCommand = this.readyCommands.shift();
         }
 
-        this.updatePortalDetector();
+        //this.updatePortalDetector();
 
         this.updateSignalBlockStatus();
         this.updateUi();
@@ -375,14 +375,14 @@ export class GameScene extends Phaser.Scene {
             this.portal
         );
 
-        const max = Math.max(distance, 1000) / 100;
-        const rate = Math.min(2 / max, 0.5);
+        const rate = Math.min(distance, 2000) / 1000;
 
         // TODO!
         this.sound.stopByKey("ping");
         this.sound.play("ping", {
+            volume: 0.1,
             loop: true,
-            rate: rate,
+            rate: 1 / rate,
         });
 
         console.log(distance);
