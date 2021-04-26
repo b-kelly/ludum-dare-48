@@ -429,8 +429,7 @@ p {
     cursor: pointer;
 }
 
-.ui-container button:hover,
-.ui-container button:focus {
+.ui-container button:hover {
     color: var(--color-h);
     background-color: rgb(5, 29, 32);
 }
