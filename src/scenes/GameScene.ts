@@ -55,14 +55,14 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload(): void {
-        // TODO sprite sheet!
         this.load.spritesheet("drone", "assets/drone_sheet.png", {
             frameWidth: TILE_WIDTH,
             frameHeight: TILE_WIDTH,
         });
-        this.load.image("portal", "assets/portal_1.png");
-        this.load.image(TileType[TileType.Ground], "assets/ground_x.png");
-        this.load.image(TileType[TileType.Wall], "assets/wall_x.png");
+        this.load.spritesheet("portal", "assets/portal_sheet.png", {
+            frameWidth: TILE_WIDTH,
+            frameHeight: TILE_WIDTH,
+        });
         this.load.spritesheet(
             TileType[TileType.Static],
             "assets/static_sheet.png",
@@ -71,6 +71,8 @@ export class GameScene extends Phaser.Scene {
                 frameHeight: TILE_WIDTH,
             }
         );
+        this.load.image(TileType[TileType.Ground], "assets/ground_x.png");
+        this.load.image(TileType[TileType.Wall], "assets/wall_x.png");
         this.load.image(EnemyType[EnemyType.MajorEnemy], "assets/enemy_1.png");
         this.load.image(EnemyType[EnemyType.MinorEnemy], "assets/enemy_2.png");
 
@@ -152,13 +154,15 @@ export class GameScene extends Phaser.Scene {
         this.drone.moveToCell(this.map.playerStart.x, this.map.playerStart.y);
         this.drone.anims.play("drone_idle", true);
 
-        const portal = this.add.image(
+        const portal = this.add.sprite(
             this.map.portal.x * TILE_WIDTH,
             this.map.portal.y * TILE_WIDTH,
             "portal"
         );
         portal.setOrigin(0, 0);
         this.physics.add.existing(portal);
+        portal.anims.play("portal_anim");
+        portal.setTint(fgColor);
 
         /** ADD ENEMIES */
         this.enemies = [];
@@ -250,6 +254,16 @@ export class GameScene extends Phaser.Scene {
         this.anims.create({
             key: TileType[TileType.Static] + "_anim",
             frames: TileType[TileType.Static],
+            repeat: -1,
+            frameRate: 4,
+        });
+
+        this.anims.create({
+            key: "portal_anim",
+            frames: this.anims.generateFrameNumbers("portal", {
+                start: 0,
+                end: 3,
+            }),
             repeat: -1,
             frameRate: 4,
         });
